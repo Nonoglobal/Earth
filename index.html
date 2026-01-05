@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TACTICAL INTELLIGENCE SYSTEM</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        
+        #grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            padding: 10px 16px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+        
+        #logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        #time {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        #globe-container {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #sidebar {
+            position: absolute;
+            right: 16px;
+            top: 56px;
+            width: 440px;
+            background: #000000;
+            border: 1px solid #ffffff;
+            padding: 0;
+            max-height: calc(100vh - 72px);
+            overflow: hidden;
+            display: none;
+            font-size: 11px;
+        }
+        
+        #sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #ffffff;
+            background: #0a0a0a;
+        }
+        
+        #country-name {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        #country-region {
+            font-size: 10px;
+            color: #999999;
+            letter-spacing: 1px;
+        }
+        
+        #sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid #ffffff;
+            background: #000000;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border-right: 1px solid #ffffff;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: background 0.2s;
+        }
+        
+        .tab:last-child {
+            border-right: none;
+        }
+        
+        .tab:hover {
+            background: #1a1a1a;
+        }
+        
+        .tab.active {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        #sidebar-content {
+            padding: 16px;
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+            background: #000000;
+        }
+        
+        #sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        #sidebar-content::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        
+        #sidebar-content::-webkit-scrollbar-thumb {
+            background: #ffffff;
+        }
+        
+        .category {
+            margin-bottom: 20px;
+        }
+        
+        .category-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .info-item {
+            border: 1px solid #333333;
+            padding: 10px;
+            margin-bottom: 6px;
+            background: #0a0a0a;
+        }
+        
+        .info-label {
+            font-size: 8px;
+            color: #999999;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        
+        .info-value {
+            font-size: 11px;
+            color: #ffffff;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .metric-box {
+            border: 1px solid #ffffff;
+            padding: 10px;
+            text-align: center;
+            background: #000000;
+        }
+        
+        .metric-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        
+        .metric-label {
+            font-size: 8px;
+            color: #999999;
+            letter-spacing: 1px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border: 1px solid #ffffff;
+        }
+        
+        .status-stable { background: #00ff00; }
+        .status-warning { background: #ffff00; }
+        .status-critical { background: #ff0000; }
+        
+        #close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: transparent;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 300;
+        }
+        
+        #close-btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .war-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff0000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 10px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+        
+        .war-btn:hover {
+            background: #ffffff;
+            color: #ff0000;
+        }
+        
+        #war-map {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            width: 700px;
+            height: 600px;
+            background: #000000;
+            border: 1px solid #ffffff;
+            display: none;
+            z-index: 200;
+        }
+        
+        #war-canvas {
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+        
+        #war-map-header {
+            padding: 12px;
+            border-bottom: 1px solid #ffffff;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #war-map-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        #war-map-close {
+            background: transparent;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            font-size: 14px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        #war-map-close:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        #war-map-content {
+            padding: 16px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+        }
+        
+        .layer-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .layer-btn {
+            flex: 1;
+            padding: 8px;
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 9px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        
+        .layer-btn:hover {
+            background: #1a1a1a;
+        }
+        
+        .layer-btn.active {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .front-line {
+            border-left: 3px solid #ff0000;
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .front-line-title {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .front-line-status {
+            font-size: 8px;
+            color: #999999;
+            margin-bottom: 6px;
+        }
+        
+        .front-line-data {
+            font-size: 10px;
+            line-height: 1.5;
+        }
+        
+        .timestamp {
+            font-size: 8px;
+            color: #00ff00;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        
+        .resource-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: 1px solid #333333;
+            margin-bottom: 6px;
+            background: #0a0a0a;
+        }
+        
+        .resource-name {
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .resource-status {
+            font-size: 9px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid-overlay"></div>
+    
+    <div id="header">
+        <div id="logo">
+            <div class="status-dot"></div>
+            <div>TACTICAL INTELLIGENCE SYSTEM</div>
+        </div>
+        <div id="time"></div>
+    </div>
+    
+    <div id="globe-container"></div>
+    
+    <div id="sidebar">
+        <button id="close-btn" onclick="closeSidebar()">×</button>
+        <div id="sidebar-header">
+            <div id="country-name">SELECT TARGET</div>
+            <div id="country-region">AWAITING INPUT</div>
+        </div>
+        <div id="sidebar-tabs">
+            <div class="tab active" onclick="switchTab('intel')">INTEL</div>
+            <div class="tab" onclick="switchTab('economy')">ECONOMY</div>
+            <div class="tab" onclick="switchTab('security')">SECURITY</div>
+            <div class="tab" onclick="switchTab('demo')">DEMO</div>
+        </div>
+        <div id="sidebar-content"></div>
+    </div>
+    
+    <div id="war-map">
+        <div id="war-map-header">
+            <div id="war-map-title">OPERATIONAL THEATER: UKRAINE</div>
+            <button id="war-map-close" onclick="closeWarMap()">×</button>
+        </div>
+        <div class="layer-toggle" style="padding: 8px; border-bottom: 1px solid #ffffff;">
+            <button class="layer-btn active" onclick="switchLayer('frontlines')">FRONTLINES</button>
+            <button class="layer-btn" onclick="switchLayer('resources')">RESOURCES</button>
+            <button class="layer-btn" onclick="switchLayer('infrastructure')">INFRASTRUCTURE</button>
+        </div>
+        <canvas id="war-canvas"></canvas>
+        <div id="layer-content" style="position: absolute; top: 100px; right: 16px; width: 250px; max-height: calc(100% - 120px); overflow-y: auto; background: rgba(0,0,0,0.9); border: 1px solid #ffffff; padding: 12px;"></div>
+    </div>
+
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script>
+        let currentTab = 'intel';
+        let currentLayer = 'frontlines';
+        let canvas, ctx;
+        
+        // Ukraine Map Coordinates (simplified projection)
+        const mapBounds = {
+            minLat: 44.0,
+            maxLat: 52.5,
+            minLng: 22.0,
+            maxLng: 40.5
+        };
+        
+        // Key cities with coordinates
+        const cities = {
+            'Kyiv': { lat: 50.45, lng: 30.52, size: 8 },
+            'Kharkiv': { lat: 49.99, lng: 36.23, size: 6 },
+            'Dnipro': { lat: 48.46, lng: 35.04, size: 6 },
+            'Odesa': { lat: 46.48, lng: 30.73, size: 6 },
+            'Lviv': { lat: 49.84, lng: 24.03, size: 6 },
+            'Zaporizhzhia': { lat: 47.84, lng: 35.14, size: 5 },
+            'Mariupol': { lat: 47.10, lng: 37.55, size: 5, occupied: true },
+            'Donetsk': { lat: 48.00, lng: 37.80, size: 5, occupied: true },
+            'Luhansk': { lat: 48.57, lng: 39.31, size: 5, occupied: true },
+            'Bakhmut': { lat: 48.59, lng: 38.00, size: 4, contested: true },
+            'Kupyansk': { lat: 49.71, lng: 37.62, size: 4, contested: true },
+            'Pokrovsk': { lat: 48.28, lng: 37.18, size: 4 },
+            'Kherson': { lat: 46.63, lng: 32.62, size: 5 },
+            'Melitopol': { lat: 46.84, lng: 35.37, size: 4, occupied: true }
+        };
+        
+        // Frontline coordinates (approximate as of Jan 2026)
+        const frontlinePoints = [
+            // Northern sector - Sumy/Kursk
+            { lat: 51.68, lng: 34.80 },
+            { lat: 51.20, lng: 35.50 },
+            // Kharkiv sector
+            { lat: 50.40, lng: 36.50 },
+            { lat: 49.95, lng: 37.00 },
+            // Kupyansk-Lyman axis
+            { lat: 49.70, lng: 37.60 },
+            { lat: 49.30, lng: 37.80 },
+            { lat: 48.95, lng: 38.20 },
+            // Bakhmut-Donetsk sector
+            { lat: 48.70, lng: 38.00 },
+            { lat: 48.40, lng: 37.70 },
+            { lat: 48.10, lng: 37.50 },
+            // Pokrovsk direction
+            { lat: 48.00, lng: 37.30 },
+            { lat: 47.85, lng: 36.80 },
+            // Zaporizhzhia sector
+            { lat: 47.60, lng: 36.20 },
+            { lat: 47.40, lng: 35.80 },
+            { lat: 47.20, lng: 35.50 },
+            // Kherson sector
+            { lat: 46.90, lng: 33.80 },
+            { lat: 46.70, lng: 33.30 },
+            { lat: 46.63, lng: 32.80 }
+        ];
+        
+        // Attack zones (Russian offensive directions)
+        const attackZones = [
+            { name: 'KUPYANSK', lat: 49.70, lng: 37.60, color: '#ff0000' },
+            { name: 'LYMAN', lat: 48.95, lng: 38.20, color: '#ff0000' },
+            { name: 'BAKHMUT', lat: 48.59, lng: 38.00, color: '#ff0000' },
+            { name: 'POKROVSK', lat: 48.28, lng: 37.18, color: '#ff6600' },
+            { name: 'ZAPORIZHZHIA', lat: 47.60, lng: 36.20, color: '#ffaa00' },
+            { name: 'KHERSON', lat: 46.70, lng: 33.30, color: '#ffaa00' }
+        ];
+        
+        const countryData = {
+            'Ukraine': {
+                region: 'EASTERN EUROPE',
+                hasWarData: true,
+                intel: {
+                    regierung: 'Presidential Republic',
+                    staatsoberhaupt: 'Volodymyr Zelenskyy',
+                    konflikt: 'ACTIVE COMBAT OPERATIONS',
+                    stabilität: 'critical'
+                },
+                economy: {
+                    bip: '160B USD',
+                    wachstum: '-29.1%',
+                    hauptindustrien: 'Agriculture, Steel, Mining, Defense',
+                    kriegsschaden: '411B USD'
+                },
+                security: {
+                    status: 'critical',
+                    bedrohungslevel: 'MAXIMUM',
+                    mobilisierung: 'FULL MOBILIZATION',
+                    nato: 'Candidate'
+                },
+                demo: {
+                    bevölkerung: '43.8M (Pre-War)',
+                    flüchtlinge: '8.2M Displaced',
+                    hauptstadt: 'Kyiv'
+                }
+            },
+            'Russia': {
+                region: 'EASTERN EUROPE / NORTH ASIA',
+                intel: {
+                    regierung: 'Federal Semi-Presidential',
+                    staatsoberhaupt: 'Vladimir Putin',
+                    konflikt: 'OFFENSIVE OPERATIONS',
+                    stabilität: 'warning'
+                },
+                economy: {
+                    bip: '1.78T USD',
+                    wachstum: '+3.6%',
+                    hauptindustrien: 'Oil, Gas, Military, Mining',
+                    sanktionen: 'EXTENSIVE WESTERN SANCTIONS'
+                },
+                security: {
+                    status: 'critical',
+                    bedrohungslevel: 'HIGH',
+                    militärausgaben: '86.4B USD',
+                    nato: 'Adversary'
+                },
+                demo: {
+                    bevölkerung: '144M',
+                    hauptstadt: 'Moscow',
+                    mobilisierung: 'Partial'
+                }
+            }
+        };
+        
+        const warData = {
+            frontlines: [
+                {
+                    name: 'DONETSK AXIS',
+                    status: 'CONTESTED - HEAVY FIGHTING',
+                    data: 'Russian forces advancing near Bakhmut. Ukrainian defensive positions holding in Chasiv Yar sector.',
+                    timestamp: '2026-01-05 14:30 UTC'
+                },
+                {
+                    name: 'ZAPORIZHZHIA SECTOR',
+                    status: 'STATIC - FORTIFIED',
+                    data: 'Limited engagement. Both sides reinforcing defensive lines. Drone reconnaissance active.',
+                    timestamp: '2026-01-05 14:15 UTC'
+                },
+                {
+                    name: 'KHERSON FRONT',
+                    status: 'DEFENSIVE - STABILIZED',
+                    data: 'Ukrainian positions along Dnipro River. Artillery exchanges continue. No ground movement.',
+                    timestamp: '2026-01-05 13:45 UTC'
+                },
+                {
+                    name: 'KUPIANSK DIRECTION',
+                    status: 'ACTIVE DEFENSE',
+                    data: 'Russian offensive operations detected. Ukrainian counter-battery fire effective.',
+                    timestamp: '2026-01-05 14:00 UTC'
+                }
+            ],
+            resources: [
+                { name: 'Zaporizhzhia Nuclear Plant', status: 'OCCUPIED - CRITICAL' },
+                { name: 'Donbas Coal Reserves', status: 'CONTESTED' },
+                { name: 'Mariupol Port', status: 'OCCUPIED' },
+                { name: 'Odesa Port Complex', status: 'OPERATIONAL' },
+                { name: 'Dnipro Hydroelectric', status: 'OPERATIONAL' },
+                { name: 'Eastern Gas Fields', status: 'CONTESTED' }
+            ],
+            infrastructure: [
+                { name: 'Kyiv Power Grid', status: 'DEGRADED - 70%' },
+                { name: 'Railway Hub Lviv', status: 'OPERATIONAL' },
+                { name: 'Dnipro Bridges', status: 'PARTIAL DAMAGE' },
+                { name: 'Eastern Logistics Network', status: 'DESTROYED' },
+                { name: 'Air Defense Systems', status: 'ACTIVE' },
+                { name: 'Military Airbases', status: 'DEFENDED' }
+            ]
+        };
+        
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toISOString().replace('T', ' ').substring(0, 19);
+            document.getElementById('time').textContent = `${timeStr} UTC`;
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        const world = Globe()
+            (document.getElementById('globe-container'))
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .showAtmosphere(false);
+        
+        world.controls().autoRotate = true;
+        world.controls().autoRotateSpeed = 0.2;
+        
+        fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
+            .then(res => res.json())
+            .then(countries => {
+                world
+                    .polygonsData(countries.features)
+                    .polygonAltitude(0.01)
+                    .polygonCapColor(() => 'rgba(255, 255, 255, 0.05)')
+                    .polygonSideColor(() => 'rgba(255, 255, 255, 0.02)')
+                    .polygonStrokeColor(() => '#ffffff')
+                    .polygonLabel(({ properties: d }) => `
+                        <div style="background: #000000; padding: 6px 10px; border: 1px solid #ffffff; font-family: 'Roboto Mono', monospace; font-size: 10px; letter-spacing: 1px;">
+                            <b style="color: #ffffff;">${d.ADMIN}</b>
+                        </div>
+                    `)
+                    .onPolygonClick((polygon) => {
+                        showCountryInfo(polygon.properties.ADMIN);
+                    })
+                    .onPolygonHover(polygon => {
+                        world.polygonCapColor(d => 
+                            d === polygon ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'
+                        );
+                    });
+            });
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            updateContent();
+        }
+        
+        function showCountryInfo(countryName) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'block';
+            document.getElementById('country-name').textContent = countryName;
+            
+            const data = countryData[countryName];
+            
+            if (!data) {
+                document.getElementById('country-region').textContent = 'NO DATA AVAILABLE';
+                document.getElementById('sidebar-content').innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">NO INTELLIGENCE DATA</div>';
+                return;
+            }
+            
+            document.getElementById('country-region').textContent = data.region;
+            updateContent();
+        }
+        
+        function updateContent() {
+            const countryName = document.getElementById('country-name').textContent;
+            const data = countryData[countryName];
+            if (!data) return;
+            
+            const content = document.getElementById('sidebar-content');
+            
+            if (currentTab === 'intel') {
+                content.innerHTML = `
+                    <div class="category">
+                        <div class="category-title">POLITICAL INTEL</div>
+                        <div class="info-item">
+                            <div class="info-label">GOVERNMENT TYPE</div>
+                            <div class="info-value">${data.intel.regierung}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">HEAD OF STATE</div>
+                            <div class="info-value">${data.intel.staatsoberhaupt}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">CONFLICT STATUS</div>
+                            <div class="info-value">
+                                <span class="status-indicator status-${data.intel.stabilität}"></span>
+                                ${data.intel.konflikt}
+                            </div>
+                        </div>
+                    </div>
+                    ${data.hasWarData ? '<button class="war-btn" onclick="showWarMap()">► TACTICAL MAP: RUSSIA-UKRAINE WAR</button>' : ''}
+                `;
+            } else if (currentTab === 'economy') {
+                content.innerHTML = `
+                    <div class="category">
+                        <div class="category-title">ECONOMIC ASSESSMENT</div>
+                        <div class="metric-grid">
+                            <div class="metric-box">
+                                <div class="metric-value">${data.economy.bip}</div>
+                                <div class="metric-label">GDP</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-value">${data.economy.wachstum}</div>
+                                <div class="metric-label">GROWTH</div>
+                            </div>
+                        </div>
+                        <div class="info-item" style="margin-top: 10px;">
+                            <div class="info-label">KEY INDUSTRIES</div>
+                            <div class="info-value">${data.economy.hauptindustrien}</div>
+                        </div>
+                        ${data.economy.kriegsschaden ? `<div class="info-item">
+                            <div class="info-label">WAR DAMAGE</div>
+                            <div class="info-value">${data.economy.kriegsschaden}</div>
+                        </div>` : ''}
+                        ${data.economy.sanktionen ? `<div class="info-item">
+                            <div class="info-label">SANCTIONS</div>
+                            <div class="info-value">${data.economy.sanktionen}</div>
+                        </div>` : ''}
+                    </div>
+                `;
+            } else if (currentTab === 'security') {
+                content.innerHTML = `
+                    <div class="category">
+                        <div class="category-title">SECURITY ASSESSMENT</div>
+                        <div class="info-item">
+                            <div class="info-label">THREAT LEVEL</div>
+                            <div class="info-value">
+                                <span class="status-indicator status-${data.security.status}"></span>
+                                ${data.security.bedrohungslevel}
+                            </div>
+                        </div>
+                        ${data.security.mobilisierung ? `<div class="info-item">
+                            <div class="info-label">MOBILIZATION</div>
+                            <div class="info-value">${data.security.mobilisierung}</div>
+                        </div>` : ''}
+                        ${data.security.militärausgaben ? `<div class="metric-grid" style="margin-top: 10px;">
+                            <div class="metric-box">
+                                <div class="metric-value">${data.security.militärausgaben}</div>
+                                <div class="metric-label">MIL. BUDGET</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-value">${data.security.nato}</div>
+                                <div class="metric-label">NATO STATUS</div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                `;
+            } else if (currentTab === 'demo') {
+                content.innerHTML = `
+                    <div class="category">
+                        <div class="category-title">DEMOGRAPHIC DATA</div>
+                        <div class="info-item">
+                            <div class="info-label">POPULATION</div>
+                            <div class="info-value">${data.demo.bevölkerung}</div>
+                        </div>
+                        ${data.demo.flüchtlinge ? `<div class="info-item">
+                            <div class="info-label">DISPLACED PERSONS</div>
+                            <div class="info-value">${data.demo.flüchtlinge}</div>
+                        </div>` : ''}
+                        <div class="info-item">
+                            <div class="info-label">CAPITAL</div>
+                            <div class="info-value">${data.demo.hauptstadt}</div>
+                        </div>
+                        ${data.demo.mobilisierung ? `<div class="info-item">
+                            <div class="info-label">MOBILIZATION STATUS</div>
+                            <div class="info-value">${data.demo.mobilisierung}</div>
+                        </div>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        function showWarMap() {
+            document.getElementById('war-map').style.display = 'block';
+            canvas = document.getElementById('war-canvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = 700;
+            canvas.height = 550;
+            switchLayer('frontlines');
+        }
+        
+        function latLngToXY(lat, lng) {
+            const x = ((lng - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * canvas.width;
+            const y = canvas.height - ((lat - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * canvas.height;
+            return { x, y };
+        }
+        
+        function drawMap() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 10; i++) {
+                const x = (canvas.width / 10) * i;
+                const y = (canvas.height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw Ukraine border (simplified)
+            ctx.strokeStyle = '#666666';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            const border = [
+                { lat: 52.3, lng: 23.5 },
+                { lat: 51.5, lng: 24.0 },
+                { lat: 50.5, lng: 23.5 },
+                { lat: 48.5, lng: 22.5 },
+                { lat: 45.5, lng: 28.5 },
+                { lat: 45.0, lng: 33.5 },
+                { lat: 45.5, lng: 36.5 },
+                { lat: 47.0, lng: 39.0 },
+                { lat: 49.5, lng: 40.0 },
+                { lat: 51.0, lng: 38.5 },
+                { lat: 52.0, lng: 35.5 },
+                { lat: 51.5, lng: 31.5 },
+                { lat: 52.3, lng: 23.5 }
+            ];
+            border.forEach((point, i) => {
+                const {x, y} = latLngToXY(point.lat, point.lng);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            
+            if (currentLayer === 'frontlines') {
+                // Draw frontline
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                frontlinePoints.forEach((point, i) => {
+                    const {x, y} = latLngToXY(point.lat, point.lng);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                
+                // Draw attack zones
+                attackZones.forEach(zone => {
+                    const {x, y} = latLngToXY(zone.lat, zone.lng);
+                    ctx.fillStyle = zone.color + '33';
+                    ctx.strokeStyle = zone.color;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Draw arrow indicating attack direction
+                    ctx.strokeStyle = zone.color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 15, y);
+                    ctx.lineTo(x - 15, y);
+                    ctx.moveTo(x - 15, y);
+                    ctx.lineTo(x - 10, y - 5);
+                    ctx.moveTo(x - 15, y);
+                    ctx.lineTo(x - 10, y + 5);
+                    ctx.stroke();
+                });
+                
+                // Draw cities
+                for (const [name, city] of Object.entries(cities)) {
+                    const {x, y} = latLngToXY(city.lat, city.lng);
+                    
+                    if (city.occupied) {
+                        ctx.fillStyle = '#ff0000';
+                    } else if (city.contested) {
+                        ctx.fillStyle = '#ffaa00';
+                    } else {
+                        ctx.fillStyle = '#00ff00';
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, city.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // City name
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '9px "Roboto Mono"';
+                    ctx.fillText(name, x + city.size, y - city.size);
+                }
+                
+                // Draw legend
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '10px "Roboto Mono"';
+                ctx.fillText('LEGEND:', 10, 20);
+                
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(10, 35);
+                ctx.lineTo(40, 35);
+                ctx.stroke();
+                ctx.fillText('FRONTLINE', 50, 38);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.beginPath();
+                ctx.arc(20, 55, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('UA CONTROLLED', 50, 58);
+                
+                ctx.fillStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.arc(20, 75, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('RU OCCUPIED', 50, 78);
+                
+                ctx.fillStyle = '#ffaa00';
+                ctx.beginPath();
+                ctx.arc(20, 95, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('CONTESTED', 50, 98);
+            } else if (currentLayer === 'resources') {
+                // Draw resource locations
+                const resources = [
+                    { name: 'Zaporizhzhia NPP', lat: 47.51, lng: 34.59, status: 'occupied' },
+                    { name: 'Donbas Coal', lat: 48.30, lng: 38.20, status: 'contested' },
+                    { name: 'Mariupol Port', lat: 47.10, lng: 37.55, status: 'occupied' },
+                    { name: 'Odesa Port', lat: 46.48, lng: 30.73, status: 'operational' },
+                    { name: 'Eastern Gas', lat: 49.20, lng: 38.50, status: 'contested' }
+                ];
+                
+                resources.forEach(res => {
+                    const {x, y} = latLngToXY(res.lat, res.lng);
+                    
+                    if (res.status === 'occupied') {
+                        ctx.fillStyle = '#ff0000';
+                    } else if (res.status === 'contested') {
+                        ctx.fillStyle = '#ffaa00';
+                    } else {
+                        ctx.fillStyle = '#00ff00';
+                    }
+                    
+                    ctx.fillRect(x - 4, y - 4, 8, 8);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x - 4, y - 4, 8, 8);
+                });
+            } else if (currentLayer === 'infrastructure') {
+                // Draw infrastructure
+                const infrastructure = [
+                    { name: 'Kyiv Grid', lat: 50.45, lng: 30.52, status: 'degraded' },
+                    { name: 'Lviv Rail Hub', lat: 49.84, lng: 24.03, status: 'operational' },
+                    { name: 'Dnipro Bridges', lat: 48.46, lng: 35.04, status: 'damaged' },
+                    { name: 'Eastern Logistics', lat: 48.70, lng: 38.50, status: 'destroyed' }
+                ];
+                
+                infrastructure.forEach(inf => {
+                    const {x, y} = latLngToXY(inf.lat, inf.lng);
+                    
+                    if (inf.status === 'destroyed') {
+                        ctx.strokeStyle = '#ff0000';
+                    } else if (inf.status === 'damaged') {
+                        ctx.strokeStyle = '#ffaa00';
+                    } else if (inf.status === 'degraded') {
+                        ctx.strokeStyle = '#ffaa00';
+                    } else {
+                        ctx.strokeStyle = '#00ff00';
+                    }
+                    
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x - 5, y - 5);
+                    ctx.lineTo(x + 5, y + 5);
+                    ctx.moveTo(x + 5, y - 5);
+                    ctx.lineTo(x - 5, y + 5);
+                    ctx.stroke();
+                });
+            }
+        }
+        
+        function closeWarMap() {
+            document.getElementById('war-map').style.display = 'none';
+        }
+        
+        function switchLayer(layer) {
+            currentLayer = layer;
+            document.querySelectorAll('.layer-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            drawMap();
+            
+            const content = document.getElementById('layer-content');
+            
+            if (layer === 'frontlines') {
+                content.innerHTML = warData.frontlines.map(line => `
+                    <div class="front-line">
+                        <div class="front-line-title">${line.name}</div>
+                        <div class="front-line-status">${line.status}</div>
+                        <div class="front-line-data">${line.data}</div>
+                        <div class="timestamp">⏱ ${line.timestamp}</div>
+                    </div>
+                `).join('');
+            } else if (layer === 'resources') {
+                content.innerHTML = warData.resources.map(res => `
+                    <div class="resource-item">
+                        <div class="resource-name">${res.name}</div>
+                        <div class="resource-status">${res.status}</div>
+                    </div>
+                `).join('');
+            } else if (layer === 'infrastructure') {
+                content.innerHTML = warData.infrastructure.map(inf => `
+                    <div class="resource-item">
+                        <div class="resource-name">${inf.name}</div>
+                        <div class="resource-status">${inf.status}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
