@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEVELOPER INTERFACE - Tactical Intelligence System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        
+        #header {
+            background: #000000;
+            padding: 16px 24px;
+            border-bottom: 1px solid #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #header h1 {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .dev-badge {
+            background: #ff6600;
+            color: #000000;
+            padding: 4px 8px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        #header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .header-btn {
+            background: transparent;
+            border: 1px solid #ffffff;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .header-btn.primary {
+            background: #00ff00;
+            color: #000000;
+            border-color: #00ff00;
+        }
+        
+        .header-btn.primary:hover {
+            background: #00cc00;
+            border-color: #00cc00;
+        }
+        
+        #main {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            height: calc(100vh - 57px);
+        }
+        
+        /* Country List Panel */
+        #country-list {
+            background: #000000;
+            border-right: 1px solid #333333;
+            overflow-y: auto;
+        }
+        
+        #country-list-header {
+            padding: 16px;
+            border-bottom: 1px solid #333333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #country-list-header h2 {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .add-country-btn {
+            background: #00ff00;
+            border: none;
+            color: #000000;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+        }
+        
+        .add-country-btn:hover {
+            background: #00cc00;
+        }
+        
+        .country-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .country-item:hover {
+            background: #1a1a1a;
+        }
+        
+        .country-item.active {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .country-item-name {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        
+        .country-item-region {
+            font-size: 9px;
+            color: #666666;
+            margin-top: 4px;
+        }
+        
+        .country-item.active .country-item-region {
+            color: #333333;
+        }
+        
+        .country-item-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-complete { background: #00ff00; }
+        .status-partial { background: #ffaa00; }
+        .status-empty { background: #ff0000; }
+        
+        /* Editor Panel */
+        #editor {
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        #editor-header {
+            margin-bottom: 24px;
+        }
+        
+        #editor-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        
+        #editor-subtitle {
+            font-size: 10px;
+            color: #666666;
+            letter-spacing: 1px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border: 1px solid #ffffff;
+        }
+        
+        .category-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-right: 1px solid #ffffff;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .category-tab:last-child {
+            border-right: none;
+        }
+        
+        .category-tab:hover {
+            background: #1a1a1a;
+        }
+        
+        .category-tab.active {
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .form-section {
+            margin-bottom: 24px;
+        }
+        
+        .form-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #00ff00;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #999999;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+        
+        .form-input::placeholder {
+            color: #444444;
+        }
+        
+        .form-select {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #ffffff;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* Preview Panel */
+        #preview {
+            background: #000000;
+            border-left: 1px solid #333333;
+            overflow-y: auto;
+        }
+        
+        #preview-header {
+            padding: 16px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        #preview-header h2 {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        #preview-content {
+            padding: 16px;
+        }
+        
+        .preview-category {
+            margin-bottom: 20px;
+        }
+        
+        .preview-category-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #00ff00;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #333333;
+        }
+        
+        .preview-item {
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            padding: 10px;
+            margin-bottom: 6px;
+        }
+        
+        .preview-label {
+            font-size: 8px;
+            color: #666666;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        
+        .preview-value {
+            font-size: 11px;
+            color: #ffffff;
+        }
+        
+        /* JSON Panel */
+        #json-panel {
+            display: none;
+            position: fixed;
+            top: 57px;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            background: #000000;
+            z-index: 100;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        #json-panel.visible {
+            display: block;
+        }
+        
+        #json-display {
+            background: #0a0a0a;
+            border: 1px solid #333333;
+            padding: 16px;
+            font-size: 11px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .json-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #00ff00;
+            color: #000000;
+            padding: 14px 24px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        #toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        #toast.error {
+            background: #ff0000;
+            color: #ffffff;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+        }
+        
+        .modal {
+            background: #000000;
+            border: 1px solid #ffffff;
+            padding: 24px;
+            width: 400px;
+        }
+        
+        .modal-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid #ffffff;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn.cancel {
+            background: transparent;
+            color: #ffffff;
+        }
+        
+        .modal-btn.confirm {
+            background: #00ff00;
+            color: #000000;
+            border-color: #00ff00;
+        }
+        
+        /* Instructions Panel */
+        #instructions {
+            padding: 16px;
+            border-top: 1px solid #333333;
+            font-size: 9px;
+            color: #666666;
+            line-height: 1.6;
+        }
+        
+        .instruction-title {
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>
+            <span class="dev-badge">DEV</span>
+            TACTICAL INTELLIGENCE SYSTEM - DATA EDITOR
+        </h1>
+        <div id="header-actions">
+            <button class="header-btn" onclick="toggleJsonPanel()">VIEW JSON</button>
+            <button class="header-btn" onclick="exportData()">EXPORT</button>
+            <button class="header-btn" onclick="importData()">IMPORT</button>
+            <button class="header-btn primary" onclick="saveAllData()">SAVE ALL</button>
+        </div>
+    </div>
+    
+    <div id="main">
+        <!-- Country List -->
+        <div id="country-list">
+            <div id="country-list-header">
+                <h2>COUNTRIES</h2>
+                <button class="add-country-btn" onclick="showAddCountryModal()">+</button>
+            </div>
+            <div id="country-items"></div>
+            <div id="instructions">
+                <div class="instruction-title">INSTRUCTIONS</div>
+                1. Select or add a country<br>
+                2. Choose a category tab<br>
+                3. Fill in the data fields<br>
+                4. Click SAVE ALL to update JSON
+            </div>
+        </div>
+        
+        <!-- Editor -->
+        <div id="editor">
+            <div id="editor-header">
+                <div id="editor-title">SELECT A COUNTRY</div>
+                <div id="editor-subtitle">Choose a country from the list to edit its data</div>
+            </div>
+            
+            <div class="category-tabs" id="category-tabs" style="display: none;">
+                <button class="category-tab active" data-category="basic" onclick="switchCategory('basic')">BASIC</button>
+                <button class="category-tab" data-category="intel" onclick="switchCategory('intel')">INTEL</button>
+                <button class="category-tab" data-category="economy" onclick="switchCategory('economy')">ECONOMY</button>
+                <button class="category-tab" data-category="security" onclick="switchCategory('security')">SECURITY</button>
+                <button class="category-tab" data-category="demo" onclick="switchCategory('demo')">DEMO</button>
+            </div>
+            
+            <div id="form-container"></div>
+        </div>
+        
+        <!-- Preview -->
+        <div id="preview">
+            <div id="preview-header">
+                <h2>LIVE PREVIEW</h2>
+            </div>
+            <div id="preview-content">
+                <div style="color: #666666; font-size: 10px; padding: 20px; text-align: center;">
+                    Select a country to see preview
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JSON Panel -->
+    <div id="json-panel">
+        <h2 style="font-size: 14px; font-weight: 700; letter-spacing: 2px; margin-bottom: 16px;">JSON DATABASE</h2>
+        <pre id="json-display"></pre>
+        <div class="json-actions">
+            <button class="header-btn" onclick="copyJson()">COPY TO CLIPBOARD</button>
+            <button class="header-btn" onclick="toggleJsonPanel()">CLOSE</button>
+        </div>
+    </div>
+    
+    <!-- Add Country Modal -->
+    <div class="modal-overlay" id="add-country-modal">
+        <div class="modal">
+            <div class="modal-title">ADD NEW COUNTRY</div>
+            <div class="form-group">
+                <label class="form-label">COUNTRY NAME</label>
+                <input type="text" class="form-input" id="new-country-name" placeholder="e.g., Germany">
+            </div>
+            <div class="form-group">
+                <label class="form-label">REGION</label>
+                <input type="text" class="form-input" id="new-country-region" placeholder="e.g., WESTERN EUROPE">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="hideAddCountryModal()">CANCEL</button>
+                <button class="modal-btn confirm" onclick="addCountry()">ADD COUNTRY</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div id="toast"></div>
+    
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-input" accept=".json" style="display: none;">
+
+    <script>
+        // Main data object - this mirrors the JSON file structure
+        let database = {
+            metadata: {
+                lastUpdated: new Date().toISOString(),
+                version: "1.0",
+                totalCountries: 0
+            },
+            countries: {},
+            warData: {
+                frontlines: [],
+                resources: [],
+                infrastructure: []
+            }
+        };
+        
+        let selectedCountry = null;
+        let currentCategory = 'basic';
+        
+        // Form field definitions for each category
+        const formFields = {
+            basic: [
+                { key: 'region', label: 'REGION', type: 'text', placeholder: 'e.g., EASTERN EUROPE' },
+                { key: 'hasWarData', label: 'HAS WAR DATA', type: 'select', options: [
+                    { value: 'false', label: 'No' },
+                    { value: 'true', label: 'Yes' }
+                ]}
+            ],
+            intel: [
+                { key: 'regierung', label: 'GOVERNMENT TYPE', type: 'text', placeholder: 'e.g., Presidential Republic' },
+                { key: 'staatsoberhaupt', label: 'HEAD OF STATE', type: 'text', placeholder: 'e.g., Name of Leader' },
+                { key: 'konflikt', label: 'CONFLICT STATUS', type: 'text', placeholder: 'e.g., ACTIVE COMBAT OPERATIONS' },
+                { key: 'stabilitaet', label: 'STABILITY STATUS', type: 'select', options: [
+                    { value: 'stable', label: 'Stable' },
+                    { value: 'warning', label: 'Warning' },
+                    { value: 'critical', label: 'Critical' }
+                ]}
+            ],
+            economy: [
+                { key: 'bip', label: 'GDP', type: 'text', placeholder: 'e.g., 160B USD' },
+                { key: 'wachstum', label: 'GROWTH', type: 'text', placeholder: 'e.g., +3.5%' },
+                { key: 'hauptindustrien', label: 'KEY INDUSTRIES', type: 'textarea', placeholder: 'e.g., Agriculture, Steel, Mining' },
+                { key: 'kriegsschaden', label: 'WAR DAMAGE (optional)', type: 'text', placeholder: 'e.g., 411B USD' },
+                { key: 'sanktionen', label: 'SANCTIONS (optional)', type: 'text', placeholder: 'e.g., Western Sanctions' }
+            ],
+            security: [
+                { key: 'status', label: 'SECURITY STATUS', type: 'select', options: [
+                    { value: 'stable', label: 'Stable' },
+                    { value: 'warning', label: 'Warning' },
+                    { value: 'critical', label: 'Critical' }
+                ]},
+                { key: 'bedrohungslevel', label: 'THREAT LEVEL', type: 'text', placeholder: 'e.g., HIGH' },
+                { key: 'mobilisierung', label: 'MOBILIZATION (optional)', type: 'text', placeholder: 'e.g., FULL MOBILIZATION' },
+                { key: 'militaerausgaben', label: 'MILITARY BUDGET (optional)', type: 'text', placeholder: 'e.g., 86.4B USD' },
+                { key: 'nato', label: 'NATO STATUS', type: 'text', placeholder: 'e.g., Member, Candidate, Adversary' }
+            ],
+            demo: [
+                { key: 'bevoelkerung', label: 'POPULATION', type: 'text', placeholder: 'e.g., 43.8M' },
+                { key: 'hauptstadt', label: 'CAPITAL', type: 'text', placeholder: 'e.g., Kyiv' },
+                { key: 'fluechtlinge', label: 'DISPLACED PERSONS (optional)', type: 'text', placeholder: 'e.g., 8.2M Displaced' },
+                { key: 'mobilisierung', label: 'MOBILIZATION STATUS (optional)', type: 'text', placeholder: 'e.g., Partial' }
+            ]
+        };
+        
+        // Initialize with sample data
+        function initializeData() {
+            // Try to load from localStorage first
+            const saved = localStorage.getItem('tacticalIntelData');
+            if (saved) {
+                database = JSON.parse(saved);
+            } else {
+                // Load default data
+                database.countries = {
+                    'Ukraine': {
+                        region: 'EASTERN EUROPE',
+                        hasWarData: true,
+                        intel: {
+                            regierung: 'Presidential Republic',
+                            staatsoberhaupt: 'Volodymyr Zelenskyy',
+                            konflikt: 'ACTIVE COMBAT OPERATIONS',
+                            stabilitaet: 'critical'
+                        },
+                        economy: {
+                            bip: '160B USD',
+                            wachstum: '-29.1%',
+                            hauptindustrien: 'Agriculture, Steel, Mining, Defense',
+                            kriegsschaden: '411B USD'
+                        },
+                        security: {
+                            status: 'critical',
+                            bedrohungslevel: 'MAXIMUM',
+                            mobilisierung: 'FULL MOBILIZATION',
+                            nato: 'Candidate'
+                        },
+                        demo: {
+                            bevoelkerung: '43.8M (Pre-War)',
+                            fluechtlinge: '8.2M Displaced',
+                            hauptstadt: 'Kyiv'
+                        }
+                    },
+                    'Russia': {
+                        region: 'EASTERN EUROPE / NORTH ASIA',
+                        hasWarData: false,
+                        intel: {
+                            regierung: 'Federal Semi-Presidential',
+                            staatsoberhaupt: 'Vladimir Putin',
+                            konflikt: 'OFFENSIVE OPERATIONS',
+                            stabilitaet: 'warning'
+                        },
+                        economy: {
+                            bip: '1.78T USD',
+                            wachstum: '+3.6%',
+                            hauptindustrien: 'Oil, Gas, Military, Mining',
+                            sanktionen: 'EXTENSIVE WESTERN SANCTIONS'
+                        },
+                        security: {
+                            status: 'critical',
+                            bedrohungslevel: 'HIGH',
+                            militaerausgaben: '86.4B USD',
+                            nato: 'Adversary'
+                        },
+                        demo: {
+                            bevoelkerung: '144M',
+                            hauptstadt: 'Moscow',
+                            mobilisierung: 'Partial'
+                        }
+                    }
+                };
+            }
+            
+            database.metadata.totalCountries = Object.keys(database.countries).length;
+            renderCountryList();
+        }
+        
+        // Render country list
+        function renderCountryList() {
+            const container = document.getElementById('country-items');
+            container.innerHTML = '';
+            
+            Object.keys(database.countries).sort().forEach(name => {
+                const country = database.countries[name];
+                const completeness = calculateCompleteness(country);
+                
+                const item = document.createElement('div');
+                item.className = `country-item ${selectedCountry === name ? 'active' : ''}`;
+                item.onclick = () => selectCountry(name);
+                item.innerHTML = `
+                    <div>
+                        <div class="country-item-name">${name}</div>
+                        <div class="country-item-region">${country.region || 'NO REGION'}</div>
+                    </div>
+                    <div class="country-item-status ${completeness > 80 ? 'status-complete' : completeness > 40 ? 'status-partial' : 'status-empty'}"></div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // Calculate data completeness
+        function calculateCompleteness(country) {
+            let filled = 0;
+            let total = 0;
+            
+            if (country.region) filled++;
+            total++;
+            
+            ['intel', 'economy', 'security', 'demo'].forEach(cat => {
+                if (country[cat]) {
+                    Object.keys(country[cat]).forEach(key => {
+                        total++;
+                        if (country[cat][key]) filled++;
+                    });
+                }
+            });
+            
+            return (filled / total) * 100;
+        }
+        
+        // Select a country for editing
+        function selectCountry(name) {
+            selectedCountry = name;
+            document.getElementById('category-tabs').style.display = 'flex';
+            document.getElementById('editor-title').textContent = name;
+            document.getElementById('editor-subtitle').textContent = database.countries[name].region || 'NO REGION SET';
+            
+            renderCountryList();
+            renderForm();
+            renderPreview();
+        }
+        
+        // Switch category tab
+        function switchCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            renderForm();
+        }
+        
+        // Render form for current category
+        function renderForm() {
+            if (!selectedCountry) return;
+            
+            const container = document.getElementById('form-container');
+            const country = database.countries[selectedCountry];
+            const fields = formFields[currentCategory];
+            
+            let html = `<div class="form-section">
+                <div class="form-section-title">${currentCategory.toUpperCase()} DATA</div>`;
+            
+            fields.forEach(field => {
+                let value = '';
+                if (currentCategory === 'basic') {
+                    value = country[field.key] || '';
+                } else {
+                    value = country[currentCategory]?.[field.key] || '';
+                }
+                
+                // Convert boolean to string for select
+                if (field.key === 'hasWarData') {
+                    value = String(value);
+                }
+                
+                html += `<div class="form-group">
+                    <label class="form-label">${field.label}</label>`;
+                
+                if (field.type === 'text') {
+                    html += `<input type="text" class="form-input" 
+                        data-category="${currentCategory}" 
+                        data-key="${field.key}" 
+                        value="${value}" 
+                        placeholder="${field.placeholder || ''}"
+                        onchange="updateField(this)">`;
+                } else if (field.type === 'textarea') {
+                    html += `<textarea class="form-textarea" 
+                        data-category="${currentCategory}" 
+                        data-key="${field.key}" 
+                        placeholder="${field.placeholder || ''}"
+                        onchange="updateField(this)">${value}</textarea>`;
+                } else if (field.type === 'select') {
+                    html += `<select class="form-select" 
+                        data-category="${currentCategory}" 
+                        data-key="${field.key}"
+                        onchange="updateField(this)">`;
+                    field.options.forEach(opt => {
+                        html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+                    });
+                    html += `</select>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+        
+        // Update field value
+        function updateField(element) {
+            if (!selectedCountry) return;
+            
+            const category = element.dataset.category;
+            const key = element.dataset.key;
+            let value = element.value;
+            
+            // Convert string to boolean for hasWarData
+            if (key === 'hasWarData') {
+                value = value === 'true';
+            }
+            
+            if (category === 'basic') {
+                database.countries[selectedCountry][key] = value;
+            } else {
+                if (!database.countries[selectedCountry][category]) {
+                    database.countries[selectedCountry][category] = {};
+                }
+                database.countries[selectedCountry][category][key] = value;
+            }
+            
+            // Update subtitle if region changed
+            if (key === 'region') {
+                document.getElementById('editor-subtitle').textContent = value || 'NO REGION SET';
+            }
+            
+            renderPreview();
+            renderCountryList();
+        }
+        
+        // Render preview
+        function renderPreview() {
+            if (!selectedCountry) return;
+            
+            const container = document.getElementById('preview-content');
+            const country = database.countries[selectedCountry];
+            
+            let html = '';
+            
+            // Basic info
+            html += `<div class="preview-category">
+                <div class="preview-category-title">BASIC INFO</div>
+                <div class="preview-item">
+                    <div class="preview-label">COUNTRY</div>
+                    <div class="preview-value">${selectedCountry}</div>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">REGION</div>
+                    <div class="preview-value">${country.region || '-'}</div>
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">WAR DATA</div>
+                    <div class="preview-value">${country.hasWarData ? 'YES' : 'NO'}</div>
+                </div>
+            </div>`;
+            
+            // Category data
+            ['intel', 'economy', 'security', 'demo'].forEach(cat => {
+                if (country[cat] && Object.keys(country[cat]).length > 0) {
+                    html += `<div class="preview-category">
+                        <div class="preview-category-title">${cat.toUpperCase()}</div>`;
+                    
+                    Object.keys(country[cat]).forEach(key => {
+                        if (country[cat][key]) {
+                            html += `<div class="preview-item">
+                                <div class="preview-label">${key.toUpperCase()}</div>
+                                <div class="preview-value">${country[cat][key]}</div>
+                            </div>`;
+                        }
+                    });
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Save all data
+        function saveAllData() {
+            database.metadata.lastUpdated = new Date().toISOString();
+            database.metadata.totalCountries = Object.keys(database.countries).length;
+            
+            // Save to localStorage
+            localStorage.setItem('tacticalIntelData', JSON.stringify(database));
+            
+            // Also save to the shared storage that main app can read
+            localStorage.setItem('countries_data', JSON.stringify(database));
+            
+            showToast('DATA SAVED SUCCESSFULLY');
+        }
+        
+        // Export data as JSON file
+        function exportData() {
+            database.metadata.lastUpdated = new Date().toISOString();
+            const dataStr = JSON.stringify(database, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'countries_data.json';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showToast('JSON EXPORTED');
+        }
+        
+        // Import data from JSON file
+        function importData() {
+            document.getElementById('import-input').click();
+        }
+        
+        document.getElementById('import-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    database = imported;
+                    localStorage.setItem('tacticalIntelData', JSON.stringify(database));
+                    localStorage.setItem('countries_data', JSON.stringify(database));
+                    
+                    selectedCountry = null;
+                    renderCountryList();
+                    document.getElementById('editor-title').textContent = 'SELECT A COUNTRY';
+                    document.getElementById('editor-subtitle').textContent = 'Data imported successfully';
+                    document.getElementById('category-tabs').style.display = 'none';
+                    document.getElementById('form-container').innerHTML = '';
+                    document.getElementById('preview-content').innerHTML = '<div style="color: #00ff00; font-size: 10px; padding: 20px; text-align: center;">IMPORT SUCCESSFUL</div>';
+                    
+                    showToast('DATA IMPORTED SUCCESSFULLY');
+                } catch (err) {
+                    showToast('IMPORT FAILED: Invalid JSON', true);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+        
+        // Toggle JSON panel
+        function toggleJsonPanel() {
+            const panel = document.getElementById('json-panel');
+            panel.classList.toggle('visible');
+            
+            if (panel.classList.contains('visible')) {
+                document.getElementById('json-display').textContent = JSON.stringify(database, null, 2);
+            }
+        }
+        
+        // Copy JSON to clipboard
+        function copyJson() {
+            const json = JSON.stringify(database, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                showToast('COPIED TO CLIPBOARD');
+            });
+        }
+        
+        // Show add country modal
+        function showAddCountryModal() {
+            document.getElementById('add-country-modal').classList.add('visible');
+            document.getElementById('new-country-name').value = '';
+            document.getElementById('new-country-region').value = '';
+            document.getElementById('new-country-name').focus();
+        }
+        
+        // Hide add country modal
+        function hideAddCountryModal() {
+            document.getElementById('add-country-modal').classList.remove('visible');
+        }
+        
+        // Add new country
+        function addCountry() {
+            const name = document.getElementById('new-country-name').value.trim();
+            const region = document.getElementById('new-country-region').value.trim().toUpperCase();
+            
+            if (!name) {
+                showToast('COUNTRY NAME REQUIRED', true);
+                return;
+            }
+            
+            if (database.countries[name]) {
+                showToast('COUNTRY ALREADY EXISTS', true);
+                return;
+            }
+            
+            database.countries[name] = {
+                region: region || 'UNKNOWN REGION',
+                hasWarData: false,
+                intel: {},
+                economy: {},
+                security: {},
+                demo: {}
+            };
+            
+            hideAddCountryModal();
+            renderCountryList();
+            selectCountry(name);
+            showToast(`${name} ADDED`);
+        }
+        
+        // Show toast notification
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'error visible' : 'visible';
+            
+            setTimeout(() => {
+                toast.className = '';
+            }, 3000);
+        }
+        
+        // Initialize on load
+        initializeData();
+    </script>
+</body>
+</html>

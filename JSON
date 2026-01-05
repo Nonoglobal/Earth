@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "lastUpdated": "2026-01-05T14:30:00Z",
+    "version": "1.0",
+    "totalCountries": 2
+  },
+  "countries": {
+    "Ukraine": {
+      "region": "EASTERN EUROPE",
+      "hasWarData": true,
+      "intel": {
+        "regierung": "Presidential Republic",
+        "staatsoberhaupt": "Volodymyr Zelenskyy",
+        "konflikt": "ACTIVE COMBAT OPERATIONS",
+        "stabilitaet": "critical"
+      },
+      "economy": {
+        "bip": "160B USD",
+        "wachstum": "-29.1%",
+        "hauptindustrien": "Agriculture, Steel, Mining, Defense",
+        "kriegsschaden": "411B USD"
+      },
+      "security": {
+        "status": "critical",
+        "bedrohungslevel": "MAXIMUM",
+        "mobilisierung": "FULL MOBILIZATION",
+        "nato": "Candidate"
+      },
+      "demo": {
+        "bevoelkerung": "43.8M (Pre-War)",
+        "fluechtlinge": "8.2M Displaced",
+        "hauptstadt": "Kyiv"
+      }
+    },
+    "Russia": {
+      "region": "EASTERN EUROPE / NORTH ASIA",
+      "hasWarData": false,
+      "intel": {
+        "regierung": "Federal Semi-Presidential",
+        "staatsoberhaupt": "Vladimir Putin",
+        "konflikt": "OFFENSIVE OPERATIONS",
+        "stabilitaet": "warning"
+      },
+      "economy": {
+        "bip": "1.78T USD",
+        "wachstum": "+3.6%",
+        "hauptindustrien": "Oil, Gas, Military, Mining",
+        "sanktionen": "EXTENSIVE WESTERN SANCTIONS"
+      },
+      "security": {
+        "status": "critical",
+        "bedrohungslevel": "HIGH",
+        "militaerausgaben": "86.4B USD",
+        "nato": "Adversary"
+      },
+      "demo": {
+        "bevoelkerung": "144M",
+        "hauptstadt": "Moscow",
+        "mobilisierung": "Partial"
+      }
+    }
+  },
+  "warData": {
+    "frontlines": [
+      {
+        "name": "DONETSK AXIS",
+        "status": "CONTESTED - HEAVY FIGHTING",
+        "data": "Russian forces advancing near Bakhmut. Ukrainian defensive positions holding in Chasiv Yar sector.",
+        "timestamp": "2026-01-05 14:30 UTC"
+      },
+      {
+        "name": "ZAPORIZHZHIA SECTOR",
+        "status": "STATIC - FORTIFIED",
+        "data": "Limited engagement. Both sides reinforcing defensive lines. Drone reconnaissance active.",
+        "timestamp": "2026-01-05 14:15 UTC"
+      },
+      {
+        "name": "KHERSON FRONT",
+        "status": "DEFENSIVE - STABILIZED",
+        "data": "Ukrainian positions along Dnipro River. Artillery exchanges continue. No ground movement.",
+        "timestamp": "2026-01-05 13:45 UTC"
+      },
+      {
+        "name": "KUPIANSK DIRECTION",
+        "status": "ACTIVE DEFENSE",
+        "data": "Russian offensive operations detected. Ukrainian counter-battery fire effective.",
+        "timestamp": "2026-01-05 14:00 UTC"
+      }
+    ],
+    "resources": [
+      { "name": "Zaporizhzhia Nuclear Plant", "status": "OCCUPIED - CRITICAL" },
+      { "name": "Donbas Coal Reserves", "status": "CONTESTED" },
+      { "name": "Mariupol Port", "status": "OCCUPIED" },
+      { "name": "Odesa Port Complex", "status": "OPERATIONAL" },
+      { "name": "Dnipro Hydroelectric", "status": "OPERATIONAL" },
+      { "name": "Eastern Gas Fields", "status": "CONTESTED" }
+    ],
+    "infrastructure": [
+      { "name": "Kyiv Power Grid", "status": "DEGRADED - 70%" },
+      { "name": "Railway Hub Lviv", "status": "OPERATIONAL" },
+      { "name": "Dnipro Bridges", "status": "PARTIAL DAMAGE" },
+      { "name": "Eastern Logistics Network", "status": "DESTROYED" },
+      { "name": "Air Defense Systems", "status": "ACTIVE" },
+      { "name": "Military Airbases", "status": "DEFENDED" }
+    ]
+  }
+}

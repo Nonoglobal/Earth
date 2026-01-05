@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEV INTERFACE - Tactical Intelligence System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        #header {
+            background: #000;
+            padding: 16px 24px;
+            border-bottom: 1px solid #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #header h1 {
+            font-size: 14px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .dev-badge {
+            background: #ff6600;
+            color: #000;
+            padding: 4px 8px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        
+        .btn {
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 16px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover { background: #fff; color: #000; }
+        .btn.primary { background: #00ff00; color: #000; border-color: #00ff00; }
+        .btn.primary:hover { background: #00cc00; }
+        
+        #main {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            height: calc(100vh - 57px);
+        }
+        
+        /* LEFT PANEL - Country List */
+        #left-panel {
+            background: #000;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #list-header {
+            padding: 16px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #list-header h2 { font-size: 11px; letter-spacing: 2px; }
+        
+        .add-btn {
+            background: #00ff00;
+            border: none;
+            color: #000;
+            width: 28px;
+            height: 28px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        
+        .add-btn:hover { background: #00cc00; }
+        
+        #country-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .country-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.15s;
+        }
+        
+        .country-item:hover { background: #1a1a1a; }
+        .country-item.selected { background: #fff; color: #000; }
+        
+        .country-info { flex: 1; }
+        .country-name { font-size: 13px; font-weight: 500; letter-spacing: 1px; }
+        .country-region { font-size: 9px; color: #666; margin-top: 4px; }
+        .country-item.selected .country-region { color: #444; }
+        
+        .status-dot { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-green { background: #00ff00; }
+        .status-yellow { background: #ffaa00; }
+        .status-red { background: #ff0000; }
+        
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff0000;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .country-item:hover .delete-btn { opacity: 1; }
+        .country-item.selected .delete-btn { color: #cc0000; }
+        
+        #instructions {
+            padding: 16px;
+            border-top: 1px solid #333;
+            font-size: 9px;
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        /* MIDDLE PANEL - Editor */
+        #editor {
+            padding: 24px;
+            overflow-y: auto;
+            background: #0a0a0a;
+        }
+        
+        #editor-title { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+        #editor-subtitle { font-size: 10px; color: #666; margin: 8px 0 24px 0; }
+        
+        .tabs {
+            display: flex;
+            border: 1px solid #fff;
+            margin-bottom: 24px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-right: 1px solid #fff;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .tab:last-child { border-right: none; }
+        .tab:hover { background: #1a1a1a; }
+        .tab.active { background: #fff; color: #000; }
+        
+        .section-title {
+            font-size: 10px;
+            color: #00ff00;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-label { 
+            display: block; 
+            font-size: 9px; 
+            color: #888; 
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00ff00;
+        }
+        
+        .form-input::placeholder { color: #444; }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        .form-select { cursor: pointer; }
+        
+        /* RIGHT PANEL - Preview */
+        #preview {
+            background: #000;
+            border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #preview-header { 
+            padding: 16px; 
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #preview-header h2 { font-size: 11px; letter-spacing: 2px; }
+        
+        #preview-content { 
+            flex: 1;
+            padding: 16px; 
+            overflow-y: auto;
+        }
+        
+        .preview-section { margin-bottom: 20px; }
+        .preview-section-title { 
+            font-size: 9px; 
+            color: #00ff00; 
+            letter-spacing: 1px;
+            margin-bottom: 10px; 
+            padding-bottom: 4px; 
+            border-bottom: 1px solid #333; 
+        }
+        
+        .preview-item { 
+            background: #0a0a0a; 
+            border: 1px solid #222; 
+            padding: 10px; 
+            margin-bottom: 6px; 
+        }
+        .preview-label { font-size: 8px; color: #666; margin-bottom: 3px; letter-spacing: 1px; }
+        .preview-value { font-size: 11px; color: #fff; }
+        
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #00ff00;
+            color: #000;
+            padding: 14px 24px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 9999;
+        }
+        
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.error { background: #ff0000; color: #fff; }
+        
+        /* MODAL */
+        .modal-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-bg.show { display: flex; }
+        
+        .modal-box {
+            background: #000;
+            border: 1px solid #fff;
+            padding: 24px;
+            width: 420px;
+        }
+        
+        .modal-title { font-size: 14px; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #fff;
+            letter-spacing: 1px;
+        }
+        
+        .modal-btn.cancel { background: transparent; color: #fff; }
+        .modal-btn.cancel:hover { background: #333; }
+        .modal-btn.ok { background: #00ff00; color: #000; border-color: #00ff00; }
+        .modal-btn.ok:hover { background: #00cc00; }
+        
+        /* SYNC STATUS */
+        #sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 9px;
+            color: #666;
+        }
+        
+        #sync-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+        }
+        
+        #sync-dot.saving {
+            animation: blink 0.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { background: #00ff00; }
+            50% { background: #ffff00; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1><span class="dev-badge">DEV</span> TACTICAL DATA EDITOR</h1>
+        <div style="display:flex;align-items:center;gap:20px;">
+            <div id="sync-status">
+                <div id="sync-dot"></div>
+                <span id="sync-text">SYNCED</span>
+            </div>
+            <div>
+                <button class="btn" onclick="viewJson()">JSON</button>
+                <button class="btn" onclick="exportJson()">EXPORT</button>
+                <button class="btn" onclick="document.getElementById('import-file').click()">IMPORT</button>
+                <button class="btn primary" onclick="saveData()">SAVE</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="main">
+        <!-- LEFT: Country List -->
+        <div id="left-panel">
+            <div id="list-header">
+                <h2>COUNTRIES</h2>
+            </div>
+            <div id="country-list"></div>
+            <div id="instructions">
+                <strong style="color:#fff">HOW TO USE:</strong><br>
+                1. Click a country to select<br>
+                2. Edit data in the tabs<br>
+                3. Click SAVE to store<br>
+                4. Changes sync automatically
+            </div>
+        </div>
+        
+        <!-- MIDDLE: Editor -->
+        <div id="editor">
+            <div id="editor-title">SELECT A COUNTRY</div>
+            <div id="editor-subtitle">Click on a country in the list to edit its data</div>
+            
+            <div id="tabs-container" style="display:none;">
+                <div class="tabs">
+                    <button class="tab active" data-tab="basic" onclick="switchTab('basic')">BASIC</button>
+                    <button class="tab" data-tab="intel" onclick="switchTab('intel')">INTEL</button>
+                    <button class="tab" data-tab="economy" onclick="switchTab('economy')">ECONOMY</button>
+                    <button class="tab" data-tab="security" onclick="switchTab('security')">SECURITY</button>
+                    <button class="tab" data-tab="demo" onclick="switchTab('demo')">DEMO</button>
+                    <button class="tab" data-tab="news" onclick="switchTab('news')">NEWS</button>
+                </div>
+            </div>
+            
+            <div id="form-area"></div>
+        </div>
+        
+        <!-- RIGHT: Preview -->
+        <div id="preview">
+            <div id="preview-header">
+                <h2>LIVE PREVIEW</h2>
+            </div>
+            <div id="preview-content">
+                <div style="color:#555;text-align:center;padding:40px;font-size:10px;">
+                    Select a country to preview
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JSON Viewer Modal -->
+    <div class="modal-bg" id="json-modal">
+        <div class="modal-box" style="width:700px;max-height:80vh;">
+            <div class="modal-title">JSON DATABASE</div>
+            <pre id="json-viewer" style="background:#0a0a0a;border:1px solid #333;padding:16px;font-size:10px;max-height:50vh;overflow:auto;white-space:pre-wrap;"></pre>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="copyJsonToClipboard()">COPY</button>
+                <button class="modal-btn ok" onclick="closeJsonModal()">CLOSE</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast"></div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJson(event)">
+
+<script>
+// =====================================================
+// DATABASE STRUCTURE
+// =====================================================
+var database = {
+    metadata: {
+        lastUpdated: new Date().toISOString(),
+        version: "1.0"
+    },
+    countries: {},
+    warData: {
+        frontlines: [
+            { name: 'DONETSK AXIS', status: 'CONTESTED', data: 'Heavy fighting reported.', timestamp: new Date().toISOString() }
+        ],
+        resources: [
+            { name: 'Zaporizhzhia Nuclear Plant', status: 'OCCUPIED' }
+        ],
+        infrastructure: [
+            { name: 'Kyiv Power Grid', status: 'DEGRADED - 70%' }
+        ]
+    }
+};
+
+var selectedCountry = null;
+var currentTab = 'basic';
+
+// =====================================================
+// FORM FIELD DEFINITIONS
+// =====================================================
+var formConfig = {
+    basic: [
+        { key: 'region', label: 'REGION', type: 'text', placeholder: 'e.g., EASTERN EUROPE' },
+        { key: 'hasWarData', label: 'SHOW WAR MAP BUTTON', type: 'select', options: [
+            { value: false, text: 'No' },
+            { value: true, text: 'Yes' }
+        ]}
+    ],
+    intel: [
+        { key: 'regierung', label: 'GOVERNMENT TYPE', type: 'text', placeholder: 'e.g., Presidential Republic' },
+        { key: 'staatsoberhaupt', label: 'HEAD OF STATE', type: 'text', placeholder: 'e.g., Leader Name' },
+        { key: 'konflikt', label: 'CONFLICT STATUS', type: 'text', placeholder: 'e.g., ACTIVE COMBAT' },
+        { key: 'stabilitaet', label: 'STABILITY', type: 'select', options: [
+            { value: 'stable', text: 'Stable (Green)' },
+            { value: 'warning', text: 'Warning (Yellow)' },
+            { value: 'critical', text: 'Critical (Red)' }
+        ]}
+    ],
+    economy: [
+        { key: 'bip', label: 'GDP', type: 'text', placeholder: 'e.g., 160B USD' },
+        { key: 'wachstum', label: 'GROWTH RATE', type: 'text', placeholder: 'e.g., +3.5%' },
+        { key: 'hauptindustrien', label: 'KEY INDUSTRIES', type: 'textarea', placeholder: 'e.g., Agriculture, Steel, Mining' },
+        { key: 'kriegsschaden', label: 'WAR DAMAGE', type: 'text', placeholder: 'e.g., 411B USD (optional)' },
+        { key: 'sanktionen', label: 'SANCTIONS', type: 'text', placeholder: 'e.g., Western Sanctions (optional)' }
+    ],
+    security: [
+        { key: 'status', label: 'SECURITY STATUS', type: 'select', options: [
+            { value: 'stable', text: 'Stable (Green)' },
+            { value: 'warning', text: 'Warning (Yellow)' },
+            { value: 'critical', text: 'Critical (Red)' }
+        ]},
+        { key: 'bedrohungslevel', label: 'THREAT LEVEL', type: 'text', placeholder: 'e.g., HIGH' },
+        { key: 'mobilisierung', label: 'MOBILIZATION', type: 'text', placeholder: 'e.g., FULL MOBILIZATION' },
+        { key: 'militaerausgaben', label: 'MILITARY BUDGET', type: 'text', placeholder: 'e.g., 86.4B USD' },
+        { key: 'nato', label: 'NATO STATUS', type: 'text', placeholder: 'e.g., Member, Candidate, Adversary' }
+    ],
+    demo: [
+        { key: 'bevoelkerung', label: 'POPULATION', type: 'text', placeholder: 'e.g., 43.8M' },
+        { key: 'hauptstadt', label: 'CAPITAL CITY', type: 'text', placeholder: 'e.g., Berlin' },
+        { key: 'fluechtlinge', label: 'DISPLACED PERSONS', type: 'text', placeholder: 'e.g., 8.2M (optional)' },
+        { key: 'mobilisierung', label: 'MOBILIZATION STATUS', type: 'text', placeholder: 'e.g., Partial (optional)' }
+    ]
+};
+
+// =====================================================
+// INITIALIZATION
+// =====================================================
+function init() {
+    loadFromStorage();
+    fetchAndPopulateCountries();
+}
+
+function loadFromStorage() {
+    try {
+        // Try multiple storage keys for compatibility
+        var saved = localStorage.getItem('countries_data') || localStorage.getItem('tacticalIntelData');
+        if (saved) {
+            var parsed = JSON.parse(saved);
+            if (parsed.countries) {
+                database = parsed;
+                console.log('[DEV] Loaded database with', Object.keys(database.countries).length, 'countries');
+            }
+        }
+    } catch (e) {
+        console.error('[DEV] Error loading data:', e);
+    }
+    
+    // Add default countries if empty
+    if (Object.keys(database.countries).length === 0) {
+        addDefaultCountries();
+    }
+}
+
+function addDefaultCountries() {
+    database.countries = {
+        'Ukraine': {
+            region: 'EASTERN EUROPE',
+            hasWarData: true,
+            intel: { regierung: 'Presidential Republic', staatsoberhaupt: 'Volodymyr Zelenskyy', konflikt: 'ACTIVE COMBAT OPERATIONS', stabilitaet: 'critical' },
+            economy: { bip: '160B USD', wachstum: '-29.1%', hauptindustrien: 'Agriculture, Steel, Mining, Defense', kriegsschaden: '411B USD' },
+            security: { status: 'critical', bedrohungslevel: 'MAXIMUM', mobilisierung: 'FULL MOBILIZATION', nato: 'Candidate' },
+            demo: { bevoelkerung: '43.8M (Pre-War)', fluechtlinge: '8.2M Displaced', hauptstadt: 'Kyiv' }
+        },
+        'Russia': {
+            region: 'EASTERN EUROPE / NORTH ASIA',
+            hasWarData: false,
+            intel: { regierung: 'Federal Semi-Presidential', staatsoberhaupt: 'Vladimir Putin', konflikt: 'OFFENSIVE OPERATIONS', stabilitaet: 'warning' },
+            economy: { bip: '1.78T USD', wachstum: '+3.6%', hauptindustrien: 'Oil, Gas, Military, Mining', sanktionen: 'EXTENSIVE WESTERN SANCTIONS' },
+            security: { status: 'critical', bedrohungslevel: 'HIGH', militaerausgaben: '86.4B USD', nato: 'Adversary' },
+            demo: { bevoelkerung: '144M', hauptstadt: 'Moscow', mobilisierung: 'Partial' }
+        }
+    };
+}
+
+function fetchAndPopulateCountries() {
+    // Fetch the same GeoJSON used in index.html to ensure keys match
+    fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data && data.features) {
+                data.features.forEach(function(feature) {
+                    var name = feature.properties.ADMIN;
+                    // Only add if not already present (preserves existing data)
+                    if (!database.countries[name]) {
+                        database.countries[name] = {
+                            region: 'UNKNOWN',
+                            hasWarData: false,
+                            intel: {},
+                            economy: {},
+                            security: {},
+                            demo: {}
+                        };
+                    }
+                });
+            }
+            renderCountryList();
+        })
+        .catch(function(err) {
+            console.error('Error fetching country list:', err);
+            renderCountryList();
+        });
+}
+
+// =====================================================
+// COUNTRY LIST RENDERING
+// =====================================================
+function renderCountryList() {
+    var container = document.getElementById('country-list');
+    var html = '';
+    
+    var names = Object.keys(database.countries).sort();
+    
+    names.forEach(function(name) {
+        var country = database.countries[name];
+        var isSelected = selectedCountry === name;
+        var completeness = getCompleteness(country);
+        var statusClass = completeness > 70 ? 'status-green' : (completeness > 30 ? 'status-yellow' : 'status-red');
+        
+        html += '<div class="country-item' + (isSelected ? ' selected' : '') + '" onclick="selectCountry(\'' + escapeHtml(name) + '\')">';
+        html += '  <div class="country-info">';
+        html += '    <div class="country-name">' + escapeHtml(name) + '</div>';
+        html += '    <div class="country-region">' + escapeHtml(country.region || 'NO REGION') + '</div>';
+        html += '  </div>';
+        html += '  <div class="status-dot ' + statusClass + '"></div>';
+        html += '  <button class="delete-btn" onclick="event.stopPropagation(); deleteCountry(\'' + escapeHtml(name) + '\')">×</button>';
+        html += '</div>';
+    });
+    
+    if (names.length === 0) {
+        html = '<div style="padding:20px;text-align:center;color:#666;font-size:10px;">No countries yet.<br>Click + to add one.</div>';
+    }
+    
+    container.innerHTML = html;
+}
+
+function getCompleteness(country) {
+    var total = 0;
+    var filled = 0;
+    
+    if (country.region) filled++;
+    total++;
+    
+    ['intel', 'economy', 'security', 'demo', 'news'].forEach(function(cat) {
+        var data = country[cat] || {};
+        var fields = formConfig[cat] || [];
+        fields.forEach(function(f) {
+            total++;
+            if (data[f.key]) filled++;
+        });
+    });
+    
+    return Math.round((filled / total) * 100);
+}
+
+// =====================================================
+// COUNTRY SELECTION
+// =====================================================
+function selectCountry(name) {
+    selectedCountry = name;
+    currentTab = 'basic';
+    
+    document.getElementById('editor-title').textContent = name;
+    document.getElementById('editor-subtitle').textContent = database.countries[name].region || 'NO REGION SET';
+    document.getElementById('tabs-container').style.display = 'block';
+    
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.tab === 'basic');
+    });
+    
+    renderCountryList();
+    renderForm();
+    renderPreview();
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    
+    document.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.tab === tab);
+    });
+    
+    renderForm();
+}
+
+// =====================================================
+// FORM RENDERING
+// =====================================================
+function renderForm() {
+    if (!selectedCountry) {
+        document.getElementById('form-area').innerHTML = '';
+        return;
+    }
+    
+    if (currentTab === 'news') {
+        renderNewsEditor();
+        return;
+    }
+
+    var country = database.countries[selectedCountry];
+    var fields = formConfig[currentTab];
+    
+    var html = '<div class="section-title">' + currentTab.toUpperCase() + ' DATA</div>';
+    
+    fields.forEach(function(field) {
+        var value = '';
+        
+        if (currentTab === 'basic') {
+            value = country[field.key];
+            if (field.key === 'hasWarData') value = country.hasWarData === true;
+        } else {
+            var catData = country[currentTab] || {};
+            value = catData[field.key] || '';
+        }
+        
+        html += '<div class="form-group">';
+        html += '  <label class="form-label">' + field.label + '</label>';
+        
+        if (field.type === 'text') {
+            html += '  <input type="text" class="form-input" ';
+            html += '    data-cat="' + currentTab + '" data-key="' + field.key + '" ';
+            html += '    value="' + escapeHtml(value || '') + '" ';
+            html += '    placeholder="' + escapeHtml(field.placeholder || '') + '" ';
+            html += '    oninput="onFieldChange(this)">';
+        } 
+        else if (field.type === 'textarea') {
+            html += '  <textarea class="form-textarea" ';
+            html += '    data-cat="' + currentTab + '" data-key="' + field.key + '" ';
+            html += '    placeholder="' + escapeHtml(field.placeholder || '') + '" ';
+            html += '    oninput="onFieldChange(this)">' + escapeHtml(value || '') + '</textarea>';
+        }
+        else if (field.type === 'select') {
+            html += '  <select class="form-select" ';
+            html += '    data-cat="' + currentTab + '" data-key="' + field.key + '" ';
+            html += '    onchange="onFieldChange(this)">';
+            
+            field.options.forEach(function(opt) {
+                var isSelected = String(value) === String(opt.value);
+                html += '    <option value="' + opt.value + '"' + (isSelected ? ' selected' : '') + '>' + opt.text + '</option>';
+            });
+            
+            html += '  </select>';
+        }
+        
+        html += '</div>';
+    });
+    
+    document.getElementById('form-area').innerHTML = html;
+}
+
+function renderNewsEditor() {
+    var country = database.countries[selectedCountry];
+    var newsList = country.news || [];
+    
+    var html = '<div class="section-title">NEWS FEED EDITOR</div>';
+    html += '<button class="btn primary" style="width:100%;margin-bottom:20px;" onclick="addNews()">+ ADD NEWS ITEM</button>';
+    
+    newsList.forEach(function(item, index) {
+        html += '<div class="preview-item" style="margin-bottom:15px;">';
+        html += '  <div style="display:flex;justify-content:space-between;margin-bottom:10px;">';
+        html += '    <span class="preview-label">ITEM #' + (index + 1) + '</span>';
+        html += '    <button class="delete-btn" style="opacity:1;position:static;" onclick="deleteNews(' + index + ')">×</button>';
+        html += '  </div>';
+        
+        html += '  <div class="form-group" style="margin-bottom:8px;">';
+        html += '    <label class="form-label">HEADLINE</label>';
+        html += '    <input type="text" class="form-input" value="' + escapeHtml(item.headline) + '" oninput="updateNews(' + index + ', \'headline\', this.value)">';
+        html += '  </div>';
+        
+        html += '  <div class="form-group" style="margin-bottom:8px;">';
+        html += '    <label class="form-label">IMAGE URL</label>';
+        html += '    <input type="text" class="form-input" value="' + escapeHtml(item.image) + '" oninput="updateNews(' + index + ', \'image\', this.value)">';
+        html += '  </div>';
+        
+        html += '  <div class="form-group" style="margin-bottom:8px;">';
+        html += '    <label class="form-label">LINK URL</label>';
+        html += '    <input type="text" class="form-input" value="' + escapeHtml(item.url) + '" oninput="updateNews(' + index + ', \'url\', this.value)">';
+        html += '  </div>';
+        
+        html += '  <div class="form-group" style="margin-bottom:0;">';
+        html += '    <label class="form-label">SUMMARY (POPUP CONTENT)</label>';
+        html += '    <textarea class="form-textarea" style="min-height:60px;" oninput="updateNews(' + index + ', \'summary\', this.value)">' + escapeHtml(item.summary) + '</textarea>';
+        html += '  </div>';
+        
+        html += '</div>';
+    });
+    
+    if (newsList.length === 0) {
+        html += '<div style="text-align:center;color:#666;font-size:10px;padding:20px;">No news items yet.</div>';
+    }
+    
+    document.getElementById('form-area').innerHTML = html;
+}
+
+// =====================================================
+// FIELD CHANGE HANDLER (Auto-save)
+// =====================================================
+function onFieldChange(el) {
+    if (!selectedCountry) return;
+    
+    var cat = el.dataset.cat;
+    var key = el.dataset.key;
+    var value = el.value;
+    
+    // Handle boolean for hasWarData
+    if (key === 'hasWarData') {
+        value = (value === 'true');
+    }
+    
+    // Update database
+    if (cat === 'basic') {
+        database.countries[selectedCountry][key] = value;
+        
+        if (key === 'region') {
+            document.getElementById('editor-subtitle').textContent = value || 'NO REGION SET';
+        }
+    } else {
+        if (!database.countries[selectedCountry][cat]) {
+            database.countries[selectedCountry][cat] = {};
+        }
+        database.countries[selectedCountry][cat][key] = value;
+    }
+    
+    // Auto-save and sync
+    autoSave();
+    
+    // Update UI
+    renderCountryList();
+    renderPreview();
+}
+
+function addNews() {
+    if (!selectedCountry) return;
+    if (!database.countries[selectedCountry].news) {
+        database.countries[selectedCountry].news = [];
+    }
+    database.countries[selectedCountry].news.push({
+        headline: 'New Headline',
+        image: '',
+        url: '#',
+        summary: 'News summary here...'
+    });
+    autoSave();
+    renderNewsEditor();
+    renderPreview();
+}
+
+function deleteNews(index) {
+    database.countries[selectedCountry].news.splice(index, 1);
+    autoSave();
+    renderNewsEditor();
+    renderPreview();
+}
+
+function updateNews(index, key, value) {
+    database.countries[selectedCountry].news[index][key] = value;
+    autoSave();
+    // No re-render to keep focus
+}
+
+// =====================================================
+// AUTO-SAVE & SYNC
+// =====================================================
+var saveTimeout = null;
+
+function autoSave() {
+    // Show saving indicator
+    document.getElementById('sync-dot').classList.add('saving');
+    document.getElementById('sync-text').textContent = 'SAVING...';
+    
+    // Debounce saves
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(function() {
+        saveToStorage();
+        
+        document.getElementById('sync-dot').classList.remove('saving');
+        document.getElementById('sync-text').textContent = 'SYNCED';
+    }, 300);
+}
+
+function saveToStorage() {
+    database.metadata.lastUpdated = new Date().toISOString();
+    database.metadata.totalCountries = Object.keys(database.countries).length;
+    
+    var json = JSON.stringify(database);
+    
+    // Save to both keys for compatibility
+    localStorage.setItem('countries_data', json);
+    localStorage.setItem('tacticalIntelData', json);
+    
+    console.log('[DEV] Data saved to localStorage');
+}
+
+function saveData() {
+    saveToStorage();
+    toast('DATA SAVED SUCCESSFULLY');
+}
+
+// =====================================================
+// PREVIEW RENDERING
+// =====================================================
+function renderPreview() {
+    if (!selectedCountry) {
+        document.getElementById('preview-content').innerHTML = '<div style="color:#555;text-align:center;padding:40px;font-size:10px;">Select a country</div>';
+        return;
+    }
+    
+    var country = database.countries[selectedCountry];
+    var html = '';
+    
+    // Basic info
+    html += '<div class="preview-section">';
+    html += '  <div class="preview-section-title">BASIC INFO</div>';
+    html += '  <div class="preview-item"><div class="preview-label">COUNTRY</div><div class="preview-value">' + escapeHtml(selectedCountry) + '</div></div>';
+    html += '  <div class="preview-item"><div class="preview-label">REGION</div><div class="preview-value">' + escapeHtml(country.region || '-') + '</div></div>';
+    html += '  <div class="preview-item"><div class="preview-label">WAR MAP</div><div class="preview-value">' + (country.hasWarData ? 'YES' : 'NO') + '</div></div>';
+    html += '</div>';
+    
+    // Category data
+    ['intel', 'economy', 'security', 'demo'].forEach(function(cat) {
+        var data = country[cat];
+        if (data && Object.keys(data).length > 0) {
+            html += '<div class="preview-section">';
+            html += '  <div class="preview-section-title">' + cat.toUpperCase() + '</div>';
+            
+            Object.keys(data).forEach(function(key) {
+                if (data[key]) {
+                    html += '<div class="preview-item">';
+                    html += '  <div class="preview-label">' + key.toUpperCase() + '</div>';
+                    html += '  <div class="preview-value">' + escapeHtml(data[key]) + '</div>';
+                    html += '</div>';
+                }
+            });
+            
+            html += '</div>';
+        }
+    });
+
+    // News Preview
+    if (country.news && country.news.length > 0) {
+        html += '<div class="preview-section">';
+        html += '  <div class="preview-section-title">NEWS (' + country.news.length + ')</div>';
+        country.news.forEach(function(n) {
+            html += '<div class="preview-item" style="margin-bottom:4px;">';
+            html += '  <div class="preview-value"><b>' + escapeHtml(n.headline) + '</b></div>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+    
+    document.getElementById('preview-content').innerHTML = html;
+}
+
+// =====================================================
+function deleteCountry(name) {
+    if (!confirm('Delete ' + name + '?')) return;
+    
+    delete database.countries[name];
+    
+    if (selectedCountry === name) {
+        selectedCountry = null;
+        document.getElementById('editor-title').textContent = 'SELECT A COUNTRY';
+        document.getElementById('editor-subtitle').textContent = 'Click on a country in the list';
+        document.getElementById('tabs-container').style.display = 'none';
+        document.getElementById('form-area').innerHTML = '';
+        document.getElementById('preview-content').innerHTML = '<div style="color:#555;text-align:center;padding:40px;font-size:10px;">Select a country</div>';
+    }
+    
+    saveToStorage();
+    renderCountryList();
+    toast(name + ' deleted');
+}
+
+// =====================================================
+// JSON VIEW / EXPORT / IMPORT
+// =====================================================
+function viewJson() {
+    document.getElementById('json-viewer').textContent = JSON.stringify(database, null, 2);
+    document.getElementById('json-modal').classList.add('show');
+}
+
+function closeJsonModal() {
+    document.getElementById('json-modal').classList.remove('show');
+}
+
+function copyJsonToClipboard() {
+    var json = JSON.stringify(database, null, 2);
+    navigator.clipboard.writeText(json).then(function() {
+        toast('Copied to clipboard');
+    });
+}
+
+function exportJson() {
+    var json = JSON.stringify(database, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'countries_data.json';
+    a.click();
+    
+    URL.revokeObjectURL(url);
+    toast('JSON exported');
+}
+
+function importJson(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            var imported = JSON.parse(e.target.result);
+            
+            if (imported.countries) {
+                database = imported;
+                saveToStorage();
+                
+                selectedCountry = null;
+                document.getElementById('editor-title').textContent = 'SELECT A COUNTRY';
+                document.getElementById('tabs-container').style.display = 'none';
+                document.getElementById('form-area').innerHTML = '';
+                
+                renderCountryList();
+                renderPreview();
+                
+                toast('Import successful: ' + Object.keys(database.countries).length + ' countries');
+            } else {
+                toast('Invalid JSON format', true);
+            }
+        } catch (err) {
+            toast('Import failed: Invalid JSON', true);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// =====================================================
+// UTILITIES
+// =====================================================
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function toast(msg, isError) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = isError ? 'show error' : 'show';
+    
+    setTimeout(function() {
+        t.className = '';
+    }, 3000);
+}
+
+// =====================================================
+// START
+// =====================================================
+init();
+</script>
+</body>
+</html>
