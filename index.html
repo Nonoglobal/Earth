@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TACTICAL INTELLIGENCE SYSTEM</title>
+    <title>ATLAS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
         
@@ -72,30 +72,6 @@
             50% { opacity: 0.3; }
         }
         
-        #data-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 9px;
-            color: #666666;
-        }
-        
-        #data-status .sync-indicator {
-            width: 6px;
-            height: 6px;
-            background: #00ff00;
-            border-radius: 50%;
-        }
-        
-        #data-status.syncing .sync-indicator {
-            animation: syncPulse 0.5s infinite;
-        }
-        
-        @keyframes syncPulse {
-            0%, 100% { background: #00ff00; }
-            50% { background: #ffff00; }
-        }
-        
         #time {
             font-variant-numeric: tabular-nums;
         }
@@ -103,352 +79,6 @@
         #globe-container {
             width: 100%;
             height: 100vh;
-            transition: opacity 1s ease, transform 1s ease;
-        }
-
-        #globe-container.hidden {
-            opacity: 0;
-            transform: scale(0.8);
-            pointer-events: none;
-        }
-
-        #flat-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: #000000;
-            z-index: 50;
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(1.2);
-            transition: opacity 1s ease, transform 1s ease;
-            overflow: hidden;
-        }
-
-        #flat-container.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
-        
-        #sidebar {
-            position: absolute;
-            right: 16px;
-            top: 56px;
-            width: 440px;
-            background: #000000;
-            border: 1px solid #ffffff;
-            padding: 0;
-            max-height: calc(100vh - 72px);
-            overflow: hidden;
-            display: none;
-            font-size: 11px;
-        }
-        
-        #sidebar-header {
-            padding: 16px;
-            border-bottom: 1px solid #ffffff;
-            background: #0a0a0a;
-        }
-        
-        #country-name {
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-        
-        #country-region {
-            font-size: 10px;
-            color: #999999;
-            letter-spacing: 1px;
-        }
-        
-        #sidebar-tabs {
-            display: flex;
-            border-bottom: 1px solid #ffffff;
-            background: #000000;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            border-right: 1px solid #ffffff;
-            font-size: 9px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            transition: background 0.2s;
-        }
-        
-        .tab:last-child {
-            border-right: none;
-        }
-        
-        .tab:hover {
-            background: #1a1a1a;
-        }
-        
-        .tab.active {
-            background: #ffffff;
-            color: #000000;
-        }
-        
-        #sidebar-content {
-            padding: 16px;
-            max-height: calc(100vh - 220px);
-            overflow-y: auto;
-            background: #000000;
-        }
-        
-        #sidebar-content::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        #sidebar-content::-webkit-scrollbar-track {
-            background: #000000;
-        }
-        
-        #sidebar-content::-webkit-scrollbar-thumb {
-            background: #ffffff;
-        }
-        
-        .category {
-            margin-bottom: 20px;
-        }
-        
-        .category-title {
-            font-size: 9px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #333333;
-        }
-        
-        .info-item {
-            border: 1px solid #333333;
-            padding: 10px;
-            margin-bottom: 6px;
-            background: #0a0a0a;
-        }
-        
-        .info-label {
-            font-size: 8px;
-            color: #999999;
-            margin-bottom: 4px;
-            letter-spacing: 1px;
-        }
-        
-        .info-value {
-            font-size: 11px;
-            color: #ffffff;
-            line-height: 1.4;
-            font-weight: 400;
-        }
-        
-        .metric-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        
-        .metric-box {
-            border: 1px solid #ffffff;
-            padding: 10px;
-            text-align: center;
-            background: #000000;
-        }
-        
-        .metric-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 4px;
-        }
-        
-        .metric-label {
-            font-size: 8px;
-            color: #999999;
-            letter-spacing: 1px;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            margin-right: 6px;
-            border: 1px solid #ffffff;
-        }
-        
-        .status-stable { background: #00ff00; }
-        .status-warning { background: #ffff00; }
-        .status-critical { background: #ff0000; }
-        
-        #close-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: transparent;
-            border: 1px solid #ffffff;
-            color: #ffffff;
-            font-size: 16px;
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 300;
-        }
-        
-        #close-btn:hover {
-            background: #ffffff;
-            color: #000000;
-        }
-        
-        .war-btn {
-            width: 100%;
-            padding: 12px;
-            background: #ff0000;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 700;
-            font-size: 10px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            margin-top: 12px;
-            transition: all 0.2s;
-        }
-        
-        .war-btn:hover {
-            background: #ffffff;
-            color: #ff0000;
-        }
-        
-        #war-map {
-            position: absolute;
-            left: 16px;
-            bottom: 16px;
-            width: 700px;
-            height: 600px;
-            background: #000000;
-            border: 1px solid #ffffff;
-            display: none;
-            z-index: 200;
-        }
-        
-        #war-map-header {
-            padding: 12px;
-            border-bottom: 1px solid #ffffff;
-            background: #0a0a0a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        #war-map-title {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-        }
-        
-        #war-map-close {
-            background: transparent;
-            border: 1px solid #ffffff;
-            color: #ffffff;
-            font-size: 14px;
-            cursor: pointer;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        #war-map-close:hover {
-            background: #ffffff;
-            color: #000000;
-        }
-        
-        .layer-btn {
-            flex: 1;
-            padding: 8px;
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 9px;
-            cursor: pointer;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-        
-        .layer-btn:hover {
-            background: #1a1a1a;
-        }
-        
-        .layer-btn.active {
-            background: #ffffff;
-            color: #000000;
-        }
-        
-        .front-line {
-            border-left: 3px solid #ff0000;
-            padding-left: 10px;
-            margin-bottom: 12px;
-        }
-        
-        .front-line-title {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-        
-        .front-line-status {
-            font-size: 8px;
-            color: #999999;
-            margin-bottom: 6px;
-        }
-        
-        .front-line-data {
-            font-size: 10px;
-            line-height: 1.5;
-        }
-        
-        .timestamp {
-            font-size: 8px;
-            color: #00ff00;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-        
-        .resource-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border: 1px solid #333333;
-            margin-bottom: 6px;
-            background: #0a0a0a;
-        }
-        
-        .resource-name {
-            font-size: 10px;
-            font-weight: 500;
-        }
-        
-        .resource-status {
-            font-size: 9px;
-            color: #999999;
         }
         
         #dev-link {
@@ -513,287 +143,323 @@
             color: #666666;
         }
 
-        #view-toggle, #rotation-toggle {
-            background: transparent;
-            border: 1px solid #ffffff;
-            color: #ffffff;
-            padding: 4px 8px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 10px;
-            cursor: pointer;
-            margin-right: 16px;
-            transition: all 0.2s;
-        }
-
-        #view-toggle:hover, #rotation-toggle:hover {
-            background: #ffffff;
-            color: #000000;
-        }
-
-        #skyeye-legend {
-            position: absolute;
-            left: 16px;
-            top: 80px;
-            width: 240px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #ff0000;
-            z-index: 60;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #skyeye-header {
-            background: #ff0000;
-            color: #000000;
-            padding: 8px 12px;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 2px;
-        }
-
-        .skyeye-btn {
-            width: 100%;
-            background: transparent;
-            border: 1px solid #ff0000;
-            color: #ff0000;
-            padding: 8px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 10px;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        .skyeye-btn:hover, .skyeye-btn.active {
-            background: #ff0000;
-            color: #000000;
-        }
-
-        .vector-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            padding: 6px 0;
-            font-size: 9px;
-            color: #ccc;
-        }
-
-        .vector-delete {
-            color: #ff0000;
-            cursor: pointer;
-            font-weight: bold;
-            padding: 2px 6px;
-            border: 1px solid #ff0000;
-        }
-
-        .vector-delete:hover {
-            background: #ff0000;
-            color: #000000;
-        }
-
-        @keyframes dash-anim {
-            to { stroke-dashoffset: -10; }
-        }
-
-        .skyeye-anim {
-            animation: dash-anim 1s linear infinite;
-        }
-
-        #vector-modal {
+        /* ==========================================
+           TARGETING OVERLAY - Palantir/CoD Style
+           ========================================== */
+        #targeting-overlay {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 600px;
-            height: 600px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        #vector-modal.active {
-            transform: translate(-50%, -50%) scale(1);
+        #targeting-overlay.active {
+            opacity: 1;
         }
 
-        #vector-content {
-            width: 70%;
-            height: 60%;
-            overflow-y: auto;
-            text-align: left;
-            padding-right: 10px;
-        }
-
-        #vector-content::-webkit-scrollbar { width: 4px; }
-        #vector-content::-webkit-scrollbar-thumb { background: #fff; border-radius: 2px; }
-
-        .vector-cat-title {
-            color: #00ff00;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 2px;
-            letter-spacing: 1px;
-        }
-
-        .vector-option {
-            font-size: 10px;
-            color: #888;
-            padding: 3px 0;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .vector-option:hover { color: #fff; }
-        .vector-option.selected { color: #00ff00; font-weight: bold; }
-        .vector-option.selected::before { content: '● '; }
-
-        #news-popup {
+        /* Corner Brackets */
+        .corner-bracket {
             position: absolute;
-            top: 180px;
-            left: 20px;
-            width: 280px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #ffffff;
-            z-index: 150;
-            display: none;
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        #news-header {
-            background: #ffffff;
-            color: #000000;
-            padding: 8px 12px;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            letter-spacing: 1px;
-        }
-
-        #news-content {
-            padding: 12px;
-            min-height: 80px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 10px;
-            color: #cccccc;
-        }
-
-        .news-item {
-            display: flex;
-            gap: 10px;
-            padding: 10px 0;
-            border-bottom: 1px solid #333;
-        }
-        
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        
-        .news-img {
             width: 60px;
             height: 60px;
-            object-fit: cover;
-            border: 1px solid #666;
-            background: #111;
-            flex-shrink: 0;
-        }
-        
-        .news-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .news-headline {
-            color: #ffffff;
-            font-size: 10px;
-            font-weight: 700;
-            text-decoration: none;
-            line-height: 1.3;
-            display: block;
-        }
-        
-        .news-headline:hover {
-            color: #00ff00;
-            text-decoration: underline;
-        }
-        
-        .news-expand {
-            font-size: 9px;
-            color: #ff6600;
-            cursor: pointer;
-            text-align: right;
-            margin-top: 4px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        
-        .news-expand:hover {
-            color: #ffffff;
+            opacity: 0;
+            animation: cornerFadeIn 0.3s ease forwards;
         }
 
-        .news-summary {
-            display: none;
-            font-size: 9px;
-            color: #999;
-            margin-top: 6px;
-            padding-top: 4px;
-            border-top: 1px dashed #333;
+        .corner-bracket.tl { top: 20%; left: 20%; border-top: 2px solid #00ff00; border-left: 2px solid #00ff00; }
+        .corner-bracket.tr { top: 20%; right: 20%; border-top: 2px solid #00ff00; border-right: 2px solid #00ff00; }
+        .corner-bracket.bl { bottom: 20%; left: 20%; border-bottom: 2px solid #00ff00; border-left: 2px solid #00ff00; }
+        .corner-bracket.br { bottom: 20%; right: 20%; border-bottom: 2px solid #00ff00; border-right: 2px solid #00ff00; }
+
+        @keyframes cornerFadeIn {
+            0% { opacity: 0; transform: scale(1.5); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
-        #news-detail-popup {
-            position: fixed;
+        /* Center Crosshair */
+        .crosshair {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            height: 200px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 1px solid #ffffff;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            resize: both;
-            overflow: hidden;
-            min-width: 200px;
-            min-height: 150px;
         }
 
-        #news-detail-header {
-            background: #ffffff;
-            color: #000000;
-            padding: 6px 10px;
-            font-size: 10px;
+        .crosshair-h, .crosshair-v {
+            position: absolute;
+            background: #00ff00;
+            opacity: 0;
+        }
+
+        .crosshair-h {
+            width: 80px;
+            height: 1px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: lineExpand 0.4s ease forwards 0.2s;
+        }
+
+        .crosshair-v {
+            width: 1px;
+            height: 80px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: lineExpandV 0.4s ease forwards 0.2s;
+        }
+
+        @keyframes lineExpand {
+            0% { width: 0; opacity: 0; }
+            100% { width: 80px; opacity: 0.8; }
+        }
+
+        @keyframes lineExpandV {
+            0% { height: 0; opacity: 0; }
+            100% { height: 80px; opacity: 0.8; }
+        }
+
+        /* Center Circle */
+        .target-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 1px solid #00ff00;
+            border-radius: 50%;
+            opacity: 0;
+            animation: circleExpand 0.5s ease forwards 0.1s;
+        }
+
+        .target-circle-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(0, 255, 0, 0.5);
+            border-radius: 50%;
+            opacity: 0;
+            animation: circleExpand 0.4s ease forwards 0.3s;
+        }
+
+        @keyframes circleExpand {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+        }
+
+        /* Scan Lines */
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            opacity: 0;
+            animation: scanMove 1s ease-in-out forwards 0.2s;
+        }
+
+        @keyframes scanMove {
+            0% { top: 30%; opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { top: 70%; opacity: 0; }
+        }
+
+        /* Data Lines - Die "kitschigen Striche" */
+        .data-line {
+            position: absolute;
+            height: 1px;
+            background: #00ff00;
+            opacity: 0;
+            transform-origin: left center;
+        }
+
+        .data-line-1 {
+            top: 35%;
+            left: 10%;
+            width: 15%;
+            animation: dataLineIn 0.3s ease forwards 0.4s;
+        }
+
+        .data-line-2 {
+            top: 45%;
+            right: 10%;
+            width: 20%;
+            animation: dataLineIn 0.3s ease forwards 0.5s;
+            transform-origin: right center;
+        }
+
+        .data-line-3 {
+            top: 55%;
+            left: 15%;
+            width: 10%;
+            animation: dataLineIn 0.3s ease forwards 0.6s;
+        }
+
+        .data-line-4 {
+            top: 65%;
+            right: 15%;
+            width: 12%;
+            animation: dataLineIn 0.3s ease forwards 0.7s;
+            transform-origin: right center;
+        }
+
+        @keyframes dataLineIn {
+            0% { width: 0; opacity: 0; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Country Name Display */
+        #target-country-name {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
             font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-            flex-shrink: 0;
+            letter-spacing: 8px;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            opacity: 0;
+            animation: nameFadeIn 0.5s ease forwards 0.6s;
+            white-space: nowrap;
         }
 
-        #news-detail-content {
-            padding: 12px;
-            color: #cccccc;
-            font-size: 11px;
-            line-height: 1.5;
-            overflow: auto;
-            flex: 1;
+        @keyframes nameFadeIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); letter-spacing: 20px; }
+            50% { opacity: 1; }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); letter-spacing: 8px; }
+        }
+
+        /* Coordinates Display */
+        .coords-display {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #00ff00;
+            opacity: 0;
+            animation: coordsFadeIn 0.3s ease forwards 0.8s;
+        }
+
+        @keyframes coordsFadeIn {
+            0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            100% { opacity: 0.8; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Status Text */
+        .status-text {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: #ff6600;
+            opacity: 0;
+            animation: statusBlink 0.5s ease forwards 0.5s;
+        }
+
+        @keyframes statusBlink {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            50% { opacity: 0.3; }
+            75% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        /* Glitch Effect on Transition */
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            opacity: 0;
+            z-index: 600;
+            pointer-events: none;
+        }
+
+        .glitch-overlay.active {
+            animation: glitchFlash 0.3s ease forwards;
+        }
+
+        @keyframes glitchFlash {
+            0% { opacity: 0; }
+            20% { opacity: 1; background: #00ff00; }
+            40% { opacity: 0; }
+            60% { opacity: 1; background: #fff; }
+            80% { opacity: 0.5; background: #000; }
+            100% { opacity: 1; background: #000; }
+        }
+
+        /* ==========================================
+           MODULE MODAL
+           ========================================== */
+        #module-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000000;
+            z-index: 5000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #module-modal.active {
+            display: block;
+            opacity: 1;
+        }
+
+        #module-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s;
+        }
+
+        #module-frame.loaded {
+            opacity: 1;
+        }
+
+        #module-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s;
+            z-index: 5001;
+        }
+
+        #module-close:hover {
+            background: #fff;
+            color: #000;
         }
     </style>
 </head>
@@ -801,7 +467,7 @@
     <div id="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <div class="loading-text">LOADING DATABASE...</div>
+            <div class="loading-text">LOADING...</div>
         </div>
     </div>
 
@@ -810,257 +476,98 @@
     <div id="header">
         <div id="logo">
             <div class="status-dot"></div>
-            <div>TACTICAL INTELLIGENCE SYSTEM</div>
+            <div>ATLAS</div>
         </div>
-        <div id="data-status">
-            <div class="sync-indicator"></div>
-            <span id="last-sync">SYNCED</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <button id="view-toggle" onclick="toggleView()">FLAT VIEW</button>
-            <button id="rotation-toggle" onclick="toggleRotation()">ROTATION [ON]</button>
-            <div id="time"></div>
-        </div>
-    </div>
-    
-    <div id="skyeye-legend">
-        <div id="skyeye-header">OPERATION SKYEYE</div>
-        <div style="padding: 12px;">
-            <button class="skyeye-btn" id="skyeye-toggle" onclick="toggleSkyeyeMode()">SET VECTOR [OFF]</button>
-            <div id="skyeye-list"></div>
-        </div>
+        <div id="time"></div>
     </div>
 
-    <div id="news-popup">
-        <div id="news-header">
-            <span id="news-title">NACHRICHTEN</span>
-            <button onclick="closeNewsPopup()" style="background:none;border:none;color:#000;font-weight:bold;cursor:pointer;">×</button>
+    <!-- Targeting Overlay -->
+    <div id="targeting-overlay">
+        <div class="corner-bracket tl"></div>
+        <div class="corner-bracket tr"></div>
+        <div class="corner-bracket bl"></div>
+        <div class="corner-bracket br"></div>
+        
+        <div class="crosshair">
+            <div class="crosshair-h"></div>
+            <div class="crosshair-v"></div>
         </div>
-        <div id="news-content">AWAITING DATA STREAM...</div>
+        
+        <div class="target-circle"></div>
+        <div class="target-circle-inner"></div>
+        
+        <div class="scan-line"></div>
+        
+        <div class="data-line data-line-1"></div>
+        <div class="data-line data-line-2"></div>
+        <div class="data-line data-line-3"></div>
+        <div class="data-line data-line-4"></div>
+        
+        <div class="status-text">TARGET ACQUIRED</div>
+        <div id="target-country-name">COUNTRY</div>
+        <div class="coords-display" id="coords-display">LAT 0.00 | LNG 0.00</div>
     </div>
 
-    <div id="news-detail-popup">
-        <div id="news-detail-header"><span>DETAILS</span><button onclick="closeNewsDetail()" style="background:none;border:none;color:#000;font-weight:bold;cursor:pointer;">×</button></div>
-        <div id="news-detail-content"></div>
+    <div class="glitch-overlay" id="glitch-overlay"></div>
+
+    <!-- Module Modal -->
+    <div id="module-modal">
+        <button id="module-close" onclick="closeModule()">×</button>
+        <iframe id="module-frame" src="about:blank"></iframe>
     </div>
 
-    <div id="vector-modal">
-        <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; color: #fff;">VECTOR CONTROL</div>
-        <div id="vector-content"></div>
-        <button class="skyeye-btn" style="width: auto; margin-top: 20px; border-radius: 20px; padding: 8px 24px;" onclick="closeVectorModal()">CLOSE LINK</button>
-    </div>
-
-    <div id="flat-container"></div>
     <div id="globe-container"></div>
-    
-    <div id="sidebar">
-        <button id="close-btn" onclick="closeSidebar()">×</button>
-        <div id="sidebar-header">
-            <div id="country-name">SELECT TARGET</div>
-            <div id="country-region">AWAITING INPUT</div>
-        </div>
-        <div id="sidebar-tabs">
-            <div class="tab active" onclick="switchTab('intel')">INTEL</div>
-            <div class="tab" onclick="switchTab('economy')">ECONOMY</div>
-            <div class="tab" onclick="switchTab('security')">SECURITY</div>
-            <div class="tab" onclick="switchTab('demo')">DEMO</div>
-        </div>
-        <div id="sidebar-content"></div>
-    </div>
-    
-    <div id="war-map">
-        <div id="war-map-header">
-            <div id="war-map-title">OPERATIONAL THEATER: UKRAINE</div>
-            <button id="war-map-close" onclick="closeWarMap()">×</button>
-        </div>
-        <div style="padding: 8px; border-bottom: 1px solid #ffffff; display: flex; gap: 0;">
-            <button class="layer-btn active" onclick="switchLayer('frontlines')">FRONTLINES</button>
-            <button class="layer-btn" onclick="switchLayer('resources')">RESOURCES</button>
-            <button class="layer-btn" onclick="switchLayer('infrastructure')">INFRASTRUCTURE</button>
-        </div>
-        <canvas id="war-canvas"></canvas>
-        <div id="layer-content" style="position: absolute; top: 100px; right: 16px; width: 250px; max-height: calc(100% - 120px); overflow-y: auto; background: rgba(0,0,0,0.9); border: 1px solid #ffffff; padding: 12px;"></div>
-    </div>
     
     <a href="developer_interface.html" id="dev-link" target="_blank">DEV INTERFACE</a>
 
     <script src="https://unpkg.com/globe.gl"></script>
-    <script src="https://unpkg.com/d3"></script>
     <script>
         // ==========================================
-        // DATA MANAGEMENT SYSTEM
+        // DATA MANAGEMENT
         // ==========================================
         
-        let countryData = {};
-        let warData = {};
-        let metadata = {};
-        
-        const DATA_REFRESH_INTERVAL = 5000;
-        
-        async function loadData() {
-            const statusEl = document.getElementById('data-status');
-            statusEl.classList.add('syncing');
-            
+        let database = { countries: {} };
+        let currentActiveCountry = null;
+
+        function loadDatabase() {
             try {
-                const savedData = localStorage.getItem('countries_data');
-                
-                if (savedData) {
-                    const parsed = JSON.parse(savedData);
-                    countryData = parsed.countries || {};
-                    warData = parsed.warData || {};
-                    metadata = parsed.metadata || {};
-                    console.log('[DATA] Loaded:', Object.keys(countryData).length, 'countries');
-                } else {
-                    console.log('[DATA] No localStorage, using defaults');
-                    loadDefaultData();
+                const saved = localStorage.getItem('countries_data') || localStorage.getItem('tacticalIntelData');
+                if (saved) {
+                    database = JSON.parse(saved);
                 }
-                
-                document.getElementById('last-sync').textContent = 'SYNCED ' + new Date().toLocaleTimeString();
-                
-            } catch (error) {
-                console.error('[DATA] Error:', error);
-                document.getElementById('last-sync').textContent = 'SYNC ERROR';
-                loadDefaultData();
+            } catch(e) { console.error("Data load error", e); }
+        }
+        
+        // Initial load
+        loadDatabase();
+
+        // Live Sync from Dev Interface
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'countries_data' || e.key === 'tacticalIntelData') {
+                loadDatabase();
+                if (currentActiveCountry) {
+                    sendDataToModule(currentActiveCountry);
+                }
             }
-            
-            setTimeout(() => statusEl.classList.remove('syncing'), 500);
+        });
+
+        function sendDataToModule(countryName) {
+            const frame = document.getElementById('module-frame');
+            if (frame && frame.contentWindow) {
+                const data = database.countries[countryName] || {};
+                frame.contentWindow.postMessage({
+                    type: 'COUNTRY_DATA',
+                    data: data
+                }, '*');
+            }
         }
-        
-        function loadDefaultData() {
-            countryData = {
-                'Ukraine': {
-                    region: 'EASTERN EUROPE',
-                    hasWarData: true,
-                    intel: { regierung: 'Presidential Republic', staatsoberhaupt: 'Volodymyr Zelenskyy', konflikt: 'ACTIVE COMBAT OPERATIONS', stabilitaet: 'critical' },
-                    economy: { bip: '160B USD', wachstum: '-29.1%', hauptindustrien: 'Agriculture, Steel, Mining, Defense', kriegsschaden: '411B USD' },
-                    security: { status: 'critical', bedrohungslevel: 'MAXIMUM', mobilisierung: 'FULL MOBILIZATION', nato: 'Candidate' },
-                    demo: { bevoelkerung: '43.8M (Pre-War)', fluechtlinge: '8.2M Displaced', hauptstadt: 'Kyiv' },
-                    news: [
-                        {
-                            headline: "BREAKING: New Defense Aid Package Approved",
-                            url: "#",
-                            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_Ukraine.svg/1200px-Flag_of_Ukraine.svg.png",
-                            summary: "International coalition confirms delivery of advanced air defense systems to protect critical infrastructure."
-                        },
-                        {
-                            headline: "Energy Grid Stabilization Efforts",
-                            url: "#",
-                            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Coat_of_arms_of_Ukraine.svg/1200px-Coat_of_arms_of_Ukraine.svg.png",
-                            summary: "Engineers working around the clock to restore power in affected regions following recent strikes."
-                        }
-                    ]
-                },
-                'Russia': {
-                    region: 'EASTERN EUROPE / NORTH ASIA',
-                    hasWarData: false,
-                    intel: { regierung: 'Federal Semi-Presidential', staatsoberhaupt: 'Vladimir Putin', konflikt: 'OFFENSIVE OPERATIONS', stabilitaet: 'warning' },
-                    economy: { bip: '1.78T USD', wachstum: '+3.6%', hauptindustrien: 'Oil, Gas, Military, Mining', sanktionen: 'EXTENSIVE WESTERN SANCTIONS' },
-                    security: { status: 'critical', bedrohungslevel: 'HIGH', militaerausgaben: '86.4B USD', nato: 'Adversary' },
-                    demo: { bevoelkerung: '144M', hauptstadt: 'Moscow', mobilisierung: 'Partial' },
-                    news: [
-                        {
-                            headline: "Central Bank Announces New Rate Hike",
-                            url: "#",
-                            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Russia.svg/1200px-Flag_of_Russia.svg.png",
-                            summary: "Interest rates increased to combat inflation amid ongoing economic sanctions."
-                        }
-                    ]
-                }
-            };
-            
-            warData = {
-                frontlines: [
-                    { name: 'DONETSK AXIS', status: 'CONTESTED - HEAVY FIGHTING', data: 'Russian forces advancing near Bakhmut.', timestamp: '2026-01-05 14:30 UTC' },
-                    { name: 'ZAPORIZHZHIA SECTOR', status: 'STATIC - FORTIFIED', data: 'Limited engagement. Drone reconnaissance active.', timestamp: '2026-01-05 14:15 UTC' },
-                    { name: 'KHERSON FRONT', status: 'DEFENSIVE - STABILIZED', data: 'Ukrainian positions along Dnipro River.', timestamp: '2026-01-05 13:45 UTC' },
-                    { name: 'KUPIANSK DIRECTION', status: 'ACTIVE DEFENSE', data: 'Russian offensive operations detected.', timestamp: '2026-01-05 14:00 UTC' }
-                ],
-                resources: [
-                    { name: 'Zaporizhzhia Nuclear Plant', status: 'OCCUPIED - CRITICAL' },
-                    { name: 'Donbas Coal Reserves', status: 'CONTESTED' },
-                    { name: 'Mariupol Port', status: 'OCCUPIED' },
-                    { name: 'Odesa Port Complex', status: 'OPERATIONAL' }
-                ],
-                infrastructure: [
-                    { name: 'Kyiv Power Grid', status: 'DEGRADED - 70%' },
-                    { name: 'Railway Hub Lviv', status: 'OPERATIONAL' },
-                    { name: 'Dnipro Bridges', status: 'PARTIAL DAMAGE' },
-                    { name: 'Eastern Logistics Network', status: 'DESTROYED' }
-                ]
-            };
-        }
-        
-        function startDataSync() {
-            loadData();
-            setInterval(loadData, DATA_REFRESH_INTERVAL);
-        }
-        
+
         // ==========================================
-        // APPLICATION LOGIC
+        // GLOBE
         // ==========================================
         
-        let isFlatView = false;
-
-        function toggleView() {
-            isFlatView = !isFlatView;
-            const btn = document.getElementById('view-toggle');
-            const flat = document.getElementById('flat-container');
-            const globe = document.getElementById('globe-container');
-            
-            if (isFlatView) {
-                btn.textContent = 'GLOBE VIEW';
-                flat.classList.add('active');
-                globe.classList.add('hidden');
-            } else {
-                btn.textContent = 'FLAT VIEW';
-                flat.classList.remove('active');
-                globe.classList.remove('hidden');
-            }
-        }
-
-        let isRotationActive = true;
-
-        function toggleRotation() {
-            isRotationActive = !isRotationActive;
-            if (world) {
-                world.controls().autoRotate = isRotationActive;
-            }
-            document.getElementById('rotation-toggle').textContent = isRotationActive ? 'ROTATION [ON]' : 'ROTATION [OFF]';
-        }
-        
-        let currentTab = 'intel';
-        let currentLayer = 'frontlines';
-        let canvas, ctx;
-        let world; // Global reference for Globe
-        
-        const mapBounds = { minLat: 44.0, maxLat: 52.5, minLng: 22.0, maxLng: 40.5 };
-        
-        const cities = {
-            'Kyiv': { lat: 50.45, lng: 30.52, size: 8 },
-            'Kharkiv': { lat: 49.99, lng: 36.23, size: 6 },
-            'Dnipro': { lat: 48.46, lng: 35.04, size: 6 },
-            'Odesa': { lat: 46.48, lng: 30.73, size: 6 },
-            'Lviv': { lat: 49.84, lng: 24.03, size: 6 },
-            'Mariupol': { lat: 47.10, lng: 37.55, size: 5, occupied: true },
-            'Donetsk': { lat: 48.00, lng: 37.80, size: 5, occupied: true },
-            'Bakhmut': { lat: 48.59, lng: 38.00, size: 4, contested: true },
-            'Kherson': { lat: 46.63, lng: 32.62, size: 5 }
-        };
-        
-        const frontlinePoints = [
-            { lat: 51.68, lng: 34.80 }, { lat: 51.20, lng: 35.50 }, { lat: 50.40, lng: 36.50 },
-            { lat: 49.95, lng: 37.00 }, { lat: 49.70, lng: 37.60 }, { lat: 49.30, lng: 37.80 },
-            { lat: 48.95, lng: 38.20 }, { lat: 48.70, lng: 38.00 }, { lat: 48.40, lng: 37.70 },
-            { lat: 48.10, lng: 37.50 }, { lat: 48.00, lng: 37.30 }, { lat: 47.85, lng: 36.80 },
-            { lat: 47.60, lng: 36.20 }, { lat: 47.40, lng: 35.80 }, { lat: 47.20, lng: 35.50 },
-            { lat: 46.90, lng: 33.80 }, { lat: 46.70, lng: 33.30 }, { lat: 46.63, lng: 32.80 }
-        ];
-        
-        const attackZones = [
-            { name: 'KUPYANSK', lat: 49.70, lng: 37.60, color: '#ff0000' },
-            { name: 'BAKHMUT', lat: 48.59, lng: 38.00, color: '#ff0000' },
-            { name: 'POKROVSK', lat: 48.28, lng: 37.18, color: '#ff6600' }
-        ];
+        let world;
+        let isAnimating = false;
         
         function updateTime() {
             const now = new Date();
@@ -1091,581 +598,176 @@
                         .polygonLabel(({ properties: d }) => `
                             <div style="background: #000000; padding: 6px 10px; border: 1px solid #ffffff; font-family: 'Roboto Mono', monospace; font-size: 10px;">
                                 <b>${d.ADMIN}</b>
-                                ${countryData[d.ADMIN] ? '<span style="color: #00ff00;"> ● DATA</span>' : ''}
                             </div>
                         `)
-                        .onPolygonClick((polygon, event, { lat, lng }) => {
-                            if (isSkyeyeActive) {
-                                handleSkyeyeClick(lat, lng);
-                            } else {
-                                showCountryInfo(polygon.properties.ADMIN);
+                        .onPolygonClick((polygon) => {
+                            if (!isAnimating) {
+                                targetCountry(polygon);
                             }
                         })
                         .onPolygonHover(polygon => {
-                            world.polygonCapColor(d => d === polygon ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)');
+                            if (!isAnimating) {
+                                world.polygonCapColor(d => d === polygon ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)');
+                            }
                         });
-
-                    // Add Arc Click Handler
-                    world.onArcClick((arc) => openVectorModal(arc.vectorId));
-
-                    // Initialize Flat Map with the same data
-                    initFlatMap(countries.features);
                     
                     setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
                 })
-                .onGlobeClick(({ lat, lng }) => {
-                    if (isSkyeyeActive) {
-                        handleSkyeyeClick(lat, lng);
-                    }
+                .catch(err => {
+                    console.error("Error loading country data:", err);
+                    setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
                 });
-        }
-        
-        let flatSvg, flatProjection, flatG;
-
-        function initFlatMap(features) {
-            const container = document.getElementById('flat-container');
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            
-            // Create Tooltip for Flat Map
-            const tooltip = d3.select('body').append('div')
-                .style('position', 'absolute')
-                .style('background', '#000000')
-                .style('padding', '6px 10px')
-                .style('border', '1px solid #ffffff')
-                .style('font-family', 'Roboto Mono, monospace')
-                .style('font-size', '10px')
-                .style('pointer-events', 'none')
-                .style('display', 'none')
-                .style('z-index', '1000');
-
-            const svg = d3.select('#flat-container')
-                .append('svg')
-                .attr('width', '100%')
-                .attr('height', '100%')
-                .attr('viewBox', `0 0 ${width} ${height}`)
-                .style('background', '#000000');
-
-            flatSvg = svg;
-
-            // Use Mercator for a more "normal" look, excluding Antarctica for better fitting
-            const featuresNoAntarctica = features.filter(f => f.properties.ADMIN !== 'Antarctica');
-            
-            const projection = d3.geoMercator()
-                .fitExtent([[50, 50], [width - 50, height - 50]], {type: "FeatureCollection", features: featuresNoAntarctica});
-            
-            flatProjection = projection;
-
-            const path = d3.geoPath().projection(projection);
-
-            const g = svg.append('g');
-            flatG = g;
-
-            g.selectAll('path')
-                .data(features)
-                .enter()
-                .append('path')
-                .attr('d', path)
-                .attr('fill', 'rgba(255, 255, 255, 0.05)')
-                .attr('stroke', '#ffffff')
-                .attr('stroke-width', '0.5px')
-                .style('cursor', 'pointer')
-                .on('mouseover', function(event, d) {
-                    d3.select(this).attr('fill', 'rgba(255, 255, 255, 0.2)');
-                    tooltip.style('display', 'block')
-                           .html(`<b>${d.properties.ADMIN}</b>${countryData[d.properties.ADMIN] ? '<span style="color: #00ff00;"> ● DATA</span>' : ''}`);
-                })
-                .on('mousemove', (event) => {
-                    tooltip.style('left', (event.pageX + 10) + 'px')
-                           .style('top', (event.pageY + 10) + 'px');
-                })
-                .on('mouseout', function(event) {
-                    d3.select(this).attr('fill', 'rgba(255, 255, 255, 0.05)');
-                    tooltip.style('display', 'none');
-                })
-                .on('click', function(event, d) {
-                    if (isSkyeyeActive) {
-                        const [x, y] = d3.pointer(event);
-                        const coords = projection.invert([x, y]);
-                        handleSkyeyeClick(coords[1], coords[0]);
-                    } else {
-                        showCountryInfo(d.properties.ADMIN);
-                    }
-                });
-
-            const zoom = d3.zoom()
-                .scaleExtent([1, 8])
-                .on('zoom', (event) => {
-                    g.attr('transform', event.transform);
-                });
-
-            svg.call(zoom);
-            
-            // Background click for Skyeye
-            svg.on('click', function(event) {
-                if (event.target.tagName === 'svg' && isSkyeyeActive) {
-                    const [x, y] = d3.pointer(event);
-                    const coords = projection.invert([x, y]);
-                    handleSkyeyeClick(coords[1], coords[0]);
-                }
-            });
-            
-            // Handle resize
-            window.addEventListener('resize', () => {
-                const w = container.clientWidth;
-                const h = container.clientHeight;
-                projection.fitExtent([[50, 50], [w - 50, h - 50]], {type: "FeatureCollection", features: featuresNoAntarctica});
-                g.selectAll('path').attr('d', path);
-            });
         }
 
         // ==========================================
-        // OPERATION SKYEYE LOGIC
+        // TARGETING ANIMATION
         // ==========================================
         
-        let isSkyeyeActive = false;
-        let skyeyeVectors = [];
-        let currentVector = null; // { alpha: {lat, lng}, bravo: null }
-
-        const vectorCategories = {
-            "RESSOURCEN / ENERGIE": ["Erdöl", "Erdgas", "Kohle", "Uran / Kernbrennstoff", "Elektrizität (grenzüberschreitend)", "Raffinierte Treibstoffe (Diesel, Benzin)", "LNG (Flüssigerdgas)", "Seltene Erden", "Lithium", "Kupfer", "Aluminium", "Stahl", "Wasserressourcen"],
-            "🌾 NAHRUNG / LANDWIRTSCHAFT": ["Weizen", "Mais", "Reis", "Soja", "Düngemittel", "Kali", "Phosphate", "Fleisch-Exporte", "Milchprodukte", "Speiseöle (Sonnenblumen-, Palmöl)", "Fisch / Meeresfrüchte"],
-            "💰 GELD / FINANZEN": ["Währungszugang (USD, EUR usw.)", "SWIFT-Zugang", "Eingefrorene Zentralbankreserven", "Gold-Exporte", "Auslands-Schuldenzahlungen", "Zinspolitik / Zinskontrollen", "Kapitalverkehrskontrollen", "Blockierte Auslandsinvestitionen", "Börsenhandel ausgesetzt", "Krypto-Zugang eingeschränkt"],
-            "🏭 WIRTSCHAFT / INDUSTRIE": ["Halbleiter", "Mikrochips", "Werkzeugmaschinen", "Auto- & Fahrzeugteile", "Flugzeugteile", "Schiffbau-Material", "Industriechemikalien", "Pharmazeutische Produkte", "Medizinische Geräte", "Baumaterialien"],
-            "🚚 HANDEL / LOGISTIK": ["Häfen geschlossen", "Luftraum gesperrt", "Bahn-Korridore blockiert", "Schiffsversicherungen verboten", "Containerhandel gestoppt", "Grenzübergänge geschlossen", "Exportlizenzen entzogen", "Importverbote"],
-            "⚔️ KRIEG / MILITÄR": ["Waffenexporte", "Munition", "Panzer & gepanzerte Fahrzeuge", "Kampfjets / Drohnen", "Raketensysteme", "Luftabwehrsysteme", "Militärische Ausbildung", "Geheimdienstliche Unterstützung", "Söldner", "Cyberkrieg"],
-            "🔐 KONTROLLE / SANKTIONEN": ["Handelssanktionen", "Energiesanktionen", "Technologiesanktionen", "Personensanktionen (Oligarchen)", "Reiseverbote", "Visa-Beschränkungen", "Vermögensbeschlagnahmung", "Firmen-Blacklists", "Schifffahrtsverbote", "Versicherungsverbote"],
-            "🌐 TECHNOLOGIE / DIGITAL": ["Internet eingeschränkt", "Cloud-Dienste gesperrt", "Softwarelizenzen entzogen", "App-Stores blockiert", "Satellitendienste eingestellt", "GPS-Nutzung eingeschränkt", "KI-Dienste gesperrt", "Telekom-Ausrüstung verboten"],
-            "🧠 POLITIK / STRATEGIE": ["Bündniszugehörigkeit (NATO, BRICS usw.)", "Neutralitätsstatus", "Notstandsgesetze", "Verstaatlichungen", "Staatliche Preisdeckel", "Energie-Rationierung", "Währungsbindung (Peg)", "Kriegswirtschaft"]
-        };
-
-        function toggleSkyeyeMode() {
-            isSkyeyeActive = !isSkyeyeActive;
-            const btn = document.getElementById('skyeye-toggle');
+        function targetCountry(polygon) {
+            if (isAnimating) return;
+            isAnimating = true;
             
-            if (isSkyeyeActive) {
-                btn.textContent = 'SET VECTOR [ACTIVE]';
-                btn.classList.add('active');
-                document.body.style.cursor = 'crosshair';
-            } else {
-                btn.textContent = 'SET VECTOR [OFF]';
-                btn.classList.remove('active');
-                document.body.style.cursor = 'default';
-                currentVector = null; // Reset incomplete vector
-                renderSkyeye();
-            }
-        }
-
-        function handleSkyeyeClick(lat, lng) {
-            if (!currentVector) {
-                // Set Alpha
-                currentVector = {
-                    id: Date.now(),
-                    alpha: { lat, lng },
-                    bravo: null,
-                    selectedOptions: []
-                };
-            } else {
-                // Set Bravo
-                currentVector.bravo = { lat, lng };
-                skyeyeVectors.push(currentVector);
-                currentVector = null;
-            }
-            renderSkyeye();
-            updateSkyeyeList();
-        }
-
-        function deleteVector(id) {
-            skyeyeVectors = skyeyeVectors.filter(v => v.id !== id);
-            renderSkyeye();
-            updateSkyeyeList();
-        }
-
-        function updateSkyeyeList() {
-            const list = document.getElementById('skyeye-list');
-            if (skyeyeVectors.length === 0) {
-                list.innerHTML = '<div style="font-size:9px;color:#666;text-align:center;padding:10px;">NO VECTORS ACTIVE</div>';
-                return;
+            const countryName = polygon.properties.ADMIN;
+            
+            // Stop rotation
+            world.controls().autoRotate = false;
+            
+            // Highlight country
+            world.polygonCapColor(d => d === polygon ? 'rgba(0, 255, 0, 0.3)' : 'rgba(0, 0, 0, 0.8)');
+            world.polygonStrokeColor(d => d === polygon ? '#00ff00' : 'rgba(255, 255, 255, 0.1)');
+            
+            // Calculate center
+            const coords = polygon.geometry.coordinates;
+            let allCoords = [];
+            
+            if (polygon.geometry.type === 'Polygon') {
+                allCoords = coords[0];
+            } else if (polygon.geometry.type === 'MultiPolygon') {
+                coords.forEach(poly => allCoords = allCoords.concat(poly[0]));
             }
             
-            list.innerHTML = skyeyeVectors.map((v, i) => `
-                <div class="vector-item">
-                    <span>VECTOR-${i+1} [ALPHA-BRAVO]</span>
-                    <span class="vector-delete" onclick="deleteVector(${v.id})">DEL</span>
-                </div>
-            `).join('');
-        }
-
-        function renderSkyeye() {
-            // Prepare data
-            const points = [];
-            const arcs = [];
-            
-            // Add completed vectors
-            skyeyeVectors.forEach((v, i) => {
-                points.push({ lat: v.alpha.lat, lng: v.alpha.lng, label: `ALPHA-${i+1}`, color: '#ff0000' });
-                points.push({ lat: v.bravo.lat, lng: v.bravo.lng, label: `BRAVO-${i+1}`, color: '#ff0000' });
-                arcs.push({ startLat: v.alpha.lat, startLng: v.alpha.lng, endLat: v.bravo.lat, endLng: v.bravo.lng, color: '#ff0000', vectorId: v.id });
+            let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+            allCoords.forEach(coord => {
+                if (coord[1] < minLat) minLat = coord[1];
+                if (coord[1] > maxLat) maxLat = coord[1];
+                if (coord[0] < minLng) minLng = coord[0];
+                if (coord[0] > maxLng) maxLng = coord[0];
             });
             
-            // Add current incomplete vector (Alpha only)
-            if (currentVector) {
-                points.push({ lat: currentVector.alpha.lat, lng: currentVector.alpha.lng, label: 'ALPHA (SET BRAVO)', color: '#ffff00' });
-            }
-
-            // Update Globe
-            if (world) {
-                world.pointsData(points)
-                    .pointColor('color')
-                    .pointAltitude(0.02)
-                    .pointRadius(0.5)
-                    .labelsData(points)
-                    .labelLat(d => d.lat)
-                    .labelLng(d => d.lng)
-                    .labelText(d => d.label)
-                    .labelSize(1.0)
-                    .labelDotRadius(0.5)
-                    .labelColor(() => '#ff0000')
-                    .labelResolution(2)
-                    .arcsData(arcs)
-                    .arcColor('color')
-                    .arcDashLength(0.4)
-                    .arcDashGap(0.2)
-                    .arcDashInitialGap(0.1)
-                    .arcStroke(0.5)
-                    .arcDashAnimateTime(1000);
-            }
-
-            // Update Flat Map
-            if (flatSvg && flatG) {
-                // Clear previous Skyeye elements
-                flatSvg.selectAll('.skyeye-el').remove();
+            const centerLat = (minLat + maxLat) / 2;
+            const centerLng = (minLng + maxLng) / 2;
+            const maxSpan = Math.max(maxLat - minLat, maxLng - minLng);
+            const altitude = Math.max(0.3, Math.min(2.0, maxSpan * 0.03));
+            
+            // Update targeting overlay
+            document.getElementById('target-country-name').textContent = countryName.toUpperCase();
+            document.getElementById('coords-display').textContent = 
+                `LAT ${centerLat.toFixed(2)} | LNG ${centerLng.toFixed(2)}`;
+            
+            // Show targeting overlay
+            const overlay = document.getElementById('targeting-overlay');
+            overlay.classList.add('active');
+            
+            // Zoom to country
+            world.pointOfView({ lat: centerLat, lng: centerLng, altitude }, 1500);
+            
+            // After zoom complete, trigger glitch and open module
+            setTimeout(() => {
+                // Glitch effect
+                document.getElementById('glitch-overlay').classList.add('active');
                 
-                // Draw Lines
-                arcs.forEach(arc => {
-                    const start = flatProjection([arc.startLng, arc.startLat]);
-                    const end = flatProjection([arc.endLng, arc.endLat]);
-                    if (start && end) {
-                        flatSvg.append('line')
-                            .attr('class', 'skyeye-el skyeye-anim')
-                            .attr('x1', start[0]).attr('y1', start[1])
-                            .attr('x2', end[0]).attr('y2', end[1])
-                            .attr('stroke', '#ff0000')
-                            .attr('stroke-width', 2)
-                            .attr('stroke-dasharray', '5,5')
-                            .style('cursor', 'pointer')
-                            .style('pointer-events', 'stroke')
-                            .on('click', (e) => { e.stopPropagation(); openVectorModal(arc.vectorId); });
-                    }
-                });
-
-                // Draw Points & Labels
-                points.forEach(p => {
-                    const pos = flatProjection([p.lng, p.lat]);
-                    if (pos) {
-                        flatSvg.append('circle')
-                            .attr('class', 'skyeye-el')
-                            .attr('cx', pos[0]).attr('cy', pos[1])
-                            .attr('r', 4)
-                            .attr('fill', p.color);
-                        
-                        flatSvg.append('text')
-                            .attr('class', 'skyeye-el')
-                            .attr('x', pos[0] + 8).attr('y', pos[1] + 4)
-                            .text(p.label)
-                            .attr('fill', p.color)
-                            .attr('font-family', 'Roboto Mono')
-                            .attr('font-size', '10px')
-                            .attr('font-weight', 'bold');
-                    }
-                });
-            }
-        }
-
-        let currentEditingVectorId = null;
-
-        function openVectorModal(id) {
-            if (!id) return;
-            currentEditingVectorId = id;
-            const vector = skyeyeVectors.find(v => v.id === id);
-            if (!vector) return;
-
-            const content = document.getElementById('vector-content');
-            let html = '';
-
-            for (const [category, options] of Object.entries(vectorCategories)) {
-                html += `<div class="vector-cat-title">${category}</div>`;
-                options.forEach(opt => {
-                    const isSelected = vector.selectedOptions.includes(opt);
-                    html += `<div class="vector-option ${isSelected ? 'selected' : ''}" onclick="toggleVectorOption('${opt}')">${opt}</div>`;
-                });
-            }
-            
-            content.innerHTML = html;
-            document.getElementById('vector-modal').classList.add('active');
-        }
-
-        function closeVectorModal() {
-            document.getElementById('vector-modal').classList.remove('active');
-            currentEditingVectorId = null;
-        }
-
-        function toggleVectorOption(option) {
-            if (!currentEditingVectorId) return;
-            const vector = skyeyeVectors.find(v => v.id === currentEditingVectorId);
-            if (!vector) return;
-
-            if (vector.selectedOptions.includes(option)) {
-                vector.selectedOptions = vector.selectedOptions.filter(o => o !== option);
-            } else {
-                vector.selectedOptions.push(option);
-            }
-            openVectorModal(currentEditingVectorId); // Re-render to update classes
-        }
-
-        function showNewsPopup(countryName) {
-            document.getElementById('news-popup').style.display = 'block';
-            document.getElementById('news-title').textContent = `NACHRICHTEN: ${countryName}`;
-            
-            const data = countryData[countryName];
-            const newsContainer = document.getElementById('news-content');
-            
-            if (data && data.news && data.news.length > 0) {
-                newsContainer.innerHTML = data.news.map(item => `
-                    <div class="news-item">
-                        <img src="${item.image || '//via.placeholder.com/60x60/000/fff?text=IMG'}" class="news-img" alt="News Image">
-                        <div class="news-info">
-                            <a href="${item.url || '#'}" target="_blank" class="news-headline">${item.headline}</a>
-                            <div class="news-summary">${item.summary || 'No details available.'}</div>
-                            <div class="news-expand" onclick="openNewsDetail(this)">MEHR ANZEIGEN ►</div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                newsContainer.innerHTML = '<div style="color:#666;text-align:center;padding:10px;">ENCRYPTED CHANNEL OPEN<br>NO ACTIVE FEEDS</div>';
-            }
-        }
-
-        function closeNewsPopup() {
-            document.getElementById('news-popup').style.display = 'none';
-        }
-
-        function openNewsDetail(btn) {
-            // Find the summary div relative to the button
-            const summaryDiv = btn.previousElementSibling;
-            const text = summaryDiv.innerHTML;
-            
-            const popup = document.getElementById('news-detail-popup');
-            document.getElementById('news-detail-content').innerHTML = text;
-            
-            // Reset position if needed or keep last position
-            popup.style.display = 'flex';
-            
-            // Initialize draggable if not already done
-            if (!popup.dataset.draggable) {
-                initDraggable(popup, document.getElementById('news-detail-header'));
-                popup.dataset.draggable = "true";
-            }
-        }
-
-        function closeNewsDetail() {
-            document.getElementById('news-detail-popup').style.display = 'none';
-        }
-
-        function initDraggable(el, handle) {
-            let isDragging = false, startX, startY, initialLeft, initialTop;
-            handle.addEventListener('mousedown', (e) => {
-                isDragging = true; startX = e.clientX; startY = e.clientY;
-                initialLeft = el.offsetLeft; initialTop = el.offsetTop;
-                el.style.transform = 'none'; // Remove centering transform
-                el.style.left = initialLeft + 'px'; el.style.top = initialTop + 'px';
-                document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
-            });
-            function onMouseMove(e) { if (!isDragging) return; el.style.left = (initialLeft + e.clientX - startX) + 'px'; el.style.top = (initialTop + e.clientY - startY) + 'px'; }
-            function onMouseUp() { isDragging = false; document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); }
+                setTimeout(() => {
+                    // Hide targeting overlay
+                    overlay.classList.remove('active');
+                    
+                    // Reset overlay animations
+                    resetTargetingOverlay();
+                    
+                    // Open module
+                    openModule('country_detail.html?country=' + encodeURIComponent(countryName));
+                    
+                    // Remove glitch
+                    setTimeout(() => {
+                        document.getElementById('glitch-overlay').classList.remove('active');
+                    }, 300);
+                    
+                }, 300);
+            }, 2000);
         }
         
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            updateContent();
+        function resetTargetingOverlay() {
+            // Clone and replace to reset all CSS animations
+            const overlay = document.getElementById('targeting-overlay');
+            const clone = overlay.cloneNode(true);
+            overlay.parentNode.replaceChild(clone, overlay);
+        }
+
+        // ==========================================
+        // MODULE SYSTEM
+        // ==========================================
+        
+        function openModule(url) {
+            const modal = document.getElementById('module-modal');
+            const frame = document.getElementById('module-frame');
+            
+            frame.src = url;
+            modal.classList.add('active');
+            
+            frame.onload = function() {
+                frame.classList.add('loaded');
+            };
         }
         
-        function showCountryInfo(countryName) {
-            document.getElementById('sidebar').style.display = 'block';
-            document.getElementById('country-name').textContent = countryName;
-            showNewsPopup(countryName);
+        function closeModule() {
+            const modal = document.getElementById('module-modal');
+            const frame = document.getElementById('module-frame');
             
-            const data = countryData[countryName];
+            frame.classList.remove('loaded');
             
-            if (!data) {
-                document.getElementById('country-region').textContent = 'NO DATA AVAILABLE';
-                document.getElementById('sidebar-content').innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">NO INTELLIGENCE DATA<br><br><span style="font-size: 9px; color: #444;">Add via Developer Interface</span></div>';
-                return;
-            }
-            
-            document.getElementById('country-region').textContent = data.region || 'UNKNOWN REGION';
-            updateContent();
-        }
-        
-        function updateContent() {
-            const countryName = document.getElementById('country-name').textContent;
-            const data = countryData[countryName];
-            if (!data) return;
-            
-            const content = document.getElementById('sidebar-content');
-            const getValue = (obj, key) => obj?.[key] || '-';
-            
-            if (currentTab === 'intel') {
-                const intel = data.intel || {};
-                content.innerHTML = `
-                    <div class="category">
-                        <div class="category-title">POLITICAL INTEL</div>
-                        <div class="info-item"><div class="info-label">GOVERNMENT TYPE</div><div class="info-value">${getValue(intel, 'regierung')}</div></div>
-                        <div class="info-item"><div class="info-label">HEAD OF STATE</div><div class="info-value">${getValue(intel, 'staatsoberhaupt')}</div></div>
-                        <div class="info-item"><div class="info-label">CONFLICT STATUS</div><div class="info-value"><span class="status-indicator status-${intel.stabilitaet || 'warning'}"></span>${getValue(intel, 'konflikt')}</div></div>
-                    </div>
-                    ${data.hasWarData ? '<button class="war-btn" onclick="showWarMap()">► TACTICAL MAP</button>' : ''}
-                `;
-            } else if (currentTab === 'economy') {
-                const economy = data.economy || {};
-                content.innerHTML = `
-                    <div class="category">
-                        <div class="category-title">ECONOMIC ASSESSMENT</div>
-                        <div class="metric-grid">
-                            <div class="metric-box"><div class="metric-value">${getValue(economy, 'bip')}</div><div class="metric-label">GDP</div></div>
-                            <div class="metric-box"><div class="metric-value">${getValue(economy, 'wachstum')}</div><div class="metric-label">GROWTH</div></div>
-                        </div>
-                        <div class="info-item" style="margin-top: 10px;"><div class="info-label">KEY INDUSTRIES</div><div class="info-value">${getValue(economy, 'hauptindustrien')}</div></div>
-                        ${economy.kriegsschaden ? `<div class="info-item"><div class="info-label">WAR DAMAGE</div><div class="info-value">${economy.kriegsschaden}</div></div>` : ''}
-                        ${economy.sanktionen ? `<div class="info-item"><div class="info-label">SANCTIONS</div><div class="info-value">${economy.sanktionen}</div></div>` : ''}
-                    </div>
-                `;
-            } else if (currentTab === 'security') {
-                const security = data.security || {};
-                content.innerHTML = `
-                    <div class="category">
-                        <div class="category-title">SECURITY ASSESSMENT</div>
-                        <div class="info-item"><div class="info-label">THREAT LEVEL</div><div class="info-value"><span class="status-indicator status-${security.status || 'warning'}"></span>${getValue(security, 'bedrohungslevel')}</div></div>
-                        ${security.mobilisierung ? `<div class="info-item"><div class="info-label">MOBILIZATION</div><div class="info-value">${security.mobilisierung}</div></div>` : ''}
-                        ${security.militaerausgaben || security.nato ? `<div class="metric-grid" style="margin-top: 10px;">
-                            ${security.militaerausgaben ? `<div class="metric-box"><div class="metric-value">${security.militaerausgaben}</div><div class="metric-label">MIL. BUDGET</div></div>` : ''}
-                            ${security.nato ? `<div class="metric-box"><div class="metric-value">${security.nato}</div><div class="metric-label">NATO STATUS</div></div>` : ''}
-                        </div>` : ''}
-                    </div>
-                `;
-            } else if (currentTab === 'demo') {
-                const demo = data.demo || {};
-                content.innerHTML = `
-                    <div class="category">
-                        <div class="category-title">DEMOGRAPHIC DATA</div>
-                        <div class="info-item"><div class="info-label">POPULATION</div><div class="info-value">${getValue(demo, 'bevoelkerung')}</div></div>
-                        ${demo.fluechtlinge ? `<div class="info-item"><div class="info-label">DISPLACED PERSONS</div><div class="info-value">${demo.fluechtlinge}</div></div>` : ''}
-                        <div class="info-item"><div class="info-label">CAPITAL</div><div class="info-value">${getValue(demo, 'hauptstadt')}</div></div>
-                        ${demo.mobilisierung ? `<div class="info-item"><div class="info-label">MOBILIZATION STATUS</div><div class="info-value">${demo.mobilisierung}</div></div>` : ''}
-                    </div>
-                `;
-            }
-        }
-        
-        function showWarMap() {
-            document.getElementById('war-map').style.display = 'block';
-            canvas = document.getElementById('war-canvas');
-            ctx = canvas.getContext('2d');
-            canvas.width = 700;
-            canvas.height = 550;
-            switchLayer('frontlines');
-        }
-        
-        function latLngToXY(lat, lng) {
-            const x = ((lng - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * canvas.width;
-            const y = canvas.height - ((lat - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * canvas.height;
-            return { x, y };
-        }
-        
-        function drawMap() {
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.strokeStyle = '#1a1a1a';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i <= 10; i++) {
-                ctx.beginPath(); ctx.moveTo((canvas.width / 10) * i, 0); ctx.lineTo((canvas.width / 10) * i, canvas.height); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, (canvas.height / 10) * i); ctx.lineTo(canvas.width, (canvas.height / 10) * i); ctx.stroke();
-            }
-            
-            ctx.strokeStyle = '#666666';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            const border = [{ lat: 52.3, lng: 23.5 }, { lat: 51.5, lng: 24.0 }, { lat: 50.5, lng: 23.5 }, { lat: 48.5, lng: 22.5 }, { lat: 45.5, lng: 28.5 }, { lat: 45.0, lng: 33.5 }, { lat: 45.5, lng: 36.5 }, { lat: 47.0, lng: 39.0 }, { lat: 49.5, lng: 40.0 }, { lat: 51.0, lng: 38.5 }, { lat: 52.0, lng: 35.5 }, { lat: 51.5, lng: 31.5 }, { lat: 52.3, lng: 23.5 }];
-            border.forEach((p, i) => { const {x, y} = latLngToXY(p.lat, p.lng); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-            ctx.stroke();
-            
-            if (currentLayer === 'frontlines') {
-                ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 2; ctx.beginPath();
-                frontlinePoints.forEach((p, i) => { const {x, y} = latLngToXY(p.lat, p.lng); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-                ctx.stroke();
+            setTimeout(() => {
+                modal.classList.remove('active');
+                frame.src = 'about:blank';
+                currentActiveCountry = null;
                 
-                attackZones.forEach(zone => {
-                    const {x, y} = latLngToXY(zone.lat, zone.lng);
-                    ctx.fillStyle = zone.color + '33'; ctx.strokeStyle = zone.color; ctx.lineWidth = 1;
-                    ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-                });
-                
-                for (const [name, city] of Object.entries(cities)) {
-                    const {x, y} = latLngToXY(city.lat, city.lng);
-                    ctx.fillStyle = city.occupied ? '#ff0000' : city.contested ? '#ffaa00' : '#00ff00';
-                    ctx.beginPath(); ctx.arc(x, y, city.size / 2, 0, Math.PI * 2); ctx.fill();
-                    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1; ctx.stroke();
-                    ctx.fillStyle = '#ffffff'; ctx.font = '9px "Roboto Mono"'; ctx.fillText(name, x + city.size, y - city.size);
+                // Reset globe
+                world.polygonCapColor(() => 'rgba(255, 255, 255, 0.05)');
+                world.polygonStrokeColor(() => '#ffffff');
+                world.controls().autoRotate = true;
+                isAnimating = false;
+            }, 500);
+        }
+        
+        // ESC to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModule();
+            }
+        });
+        
+        // Messages from module
+        window.addEventListener('message', function(event) {
+            if (event.data) {
+                if (event.data.type === 'CLOSE_MODULE') {
+                    closeModule();
+                } else if (event.data.type === 'REQUEST_DATA') {
+                    loadDatabase(); // Ensure fresh data
+                    currentActiveCountry = event.data.country;
+                    sendDataToModule(event.data.country);
                 }
-                
-                ctx.fillStyle = '#ffffff'; ctx.font = '10px "Roboto Mono"';
-                ctx.fillText('LEGEND:', 10, 20);
-                ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(10, 35); ctx.lineTo(40, 35); ctx.stroke();
-                ctx.fillText('FRONTLINE', 50, 38);
             }
-        }
+        });
+
+        // ==========================================
+        // FALLBACK & START
+        // ==========================================
         
-        function closeWarMap() { document.getElementById('war-map').style.display = 'none'; }
-        
-        function switchLayer(layer) {
-            currentLayer = layer;
-            document.querySelectorAll('.layer-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            drawMap();
-            
-            const content = document.getElementById('layer-content');
-            const wd = warData;
-            
-            if (layer === 'frontlines') {
-                content.innerHTML = (wd.frontlines || []).map(line => `
-                    <div class="front-line">
-                        <div class="front-line-title">${line.name}</div>
-                        <div class="front-line-status">${line.status}</div>
-                        <div class="front-line-data">${line.data}</div>
-                        <div class="timestamp">⏱ ${line.timestamp}</div>
-                    </div>
-                `).join('');
-            } else if (layer === 'resources') {
-                content.innerHTML = (wd.resources || []).map(res => `
-                    <div class="resource-item"><div class="resource-name">${res.name}</div><div class="resource-status">${res.status}</div></div>
-                `).join('');
-            } else if (layer === 'infrastructure') {
-                content.innerHTML = (wd.infrastructure || []).map(inf => `
-                    <div class="resource-item"><div class="resource-name">${inf.name}</div><div class="resource-status">${inf.status}</div></div>
-                `).join('');
+        setTimeout(() => {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
             }
-        }
-        
-        function closeSidebar() { d('sidebar').style.display = 'none';
-            closeNewsPopup();
-        }
-        
-        // INIT
-        startDataSync();
+        }, 10000);
+
         setTimeout(initGlobe, 100);
     </script>
 </body>

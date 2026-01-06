@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+        
+        #grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            padding: 10px 16px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+        
+        #logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        #time {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        #globe-container {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #dev-link {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            background: #ff6600;
+            color: #000000;
+            padding: 8px 16px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-decoration: none;
+            z-index: 1000;
+            transition: all 0.2s;
+        }
+        
+        #dev-link:hover {
+            background: #ffffff;
+        }
+        
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+        
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-content {
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333333;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #666666;
+        }
+
+        /* ==========================================
+           DETAIL WINDOW (Draggable)
+           ========================================== */
+        #detail-window {
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 400px;
+            height: 550px;
+            background: #000000;
+            border: 1px solid #ffffff;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+        
+        #detail-window.hidden {
+            display: none;
+        }
+        
+        #detail-header {
+            padding: 12px 16px;
+            background: #111111;
+            border-bottom: 1px solid #333333;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        #detail-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+        
+        #detail-close {
+            background: transparent;
+            border: none;
+            color: #666666;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            padding: 4px;
+        }
+        
+        #detail-close:hover {
+            color: #ffffff;
+        }
+        
+        #detail-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #0a0a0a;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">LOADING...</div>
+        </div>
+    </div>
+
+    <!-- Draggable Detail Window -->
+    <div id="detail-window" class="hidden">
+        <div id="detail-header">
+            <span id="detail-title">TACTICAL DATA</span>
+            <button id="detail-close" onclick="closeDetailWindow()">×</button>
+        </div>
+        <iframe id="detail-frame" src="about:blank" frameborder="0"></iframe>
+    </div>
+
+    <div id="grid-overlay"></div>
+    
+    <div id="header">
+        <div id="logo">
+            <div class="status-dot"></div>
+            <div>ATLAS</div>
+        </div>
+        <div id="time"></div>
+    </div>
+
+    <div id="globe-container"></div>
+    
+    <a href="developer_interface.html" id="dev-link" target="_blank">DEV INTERFACE</a>
+
+    <script src="https://unpkg.com/globe.gl"></script>
+    <script>
+        // ==========================================
+        // WINDOW & DATA HANDLING
+        // ==========================================
+        
+        // Load Data from LocalStorage (shared with Dev Interface)
+        let database = { countries: {} };
+        try {
+            const saved = localStorage.getItem('countries_data') || localStorage.getItem('tacticalIntelData');
+            if (saved) database = JSON.parse(saved);
+        } catch(e) { console.error("Data load error", e); }
+
+        // Window Management
+        let currentDetailCountry = null;
+
+        function openDetailWindow(countryName) {
+            currentDetailCountry = countryName;
+            const win = document.getElementById('detail-window');
+            const frame = document.getElementById('detail-frame');
+            const title = document.getElementById('detail-title');
+            
+            title.textContent = countryName.toUpperCase();
+            win.classList.remove('hidden');
+            
+            // Load the detail page
+            frame.src = `country_detail.html?country=${encodeURIComponent(countryName)}`;
+        }
+
+        function closeDetailWindow() {
+            document.getElementById('detail-window').classList.add('hidden');
+            const frame = document.getElementById('detail-frame');
+            setTimeout(() => { frame.src = 'about:blank'; }, 300);
+        }
+
+        // Communication with iframe
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'REQUEST_DATA') {
+                const cName = e.data.country;
+                const data = database.countries[cName] || {};
+                const frame = document.getElementById('detail-frame');
+                if (frame && frame.contentWindow) {
+                    frame.contentWindow.postMessage({
+                        type: 'COUNTRY_DATA',
+                        data: data
+                    }, '*');
+                }
+            } else if (e.data.type === 'REQUEST_UPDATE') {
+                if (currentDetailCountry) {
+                    const data = database.countries[currentDetailCountry] || {};
+                    const frame = document.getElementById('detail-frame');
+                    if (frame && frame.contentWindow) {
+                        frame.contentWindow.postMessage({
+                            type: 'COUNTRY_DATA',
+                            data: data
+                        }, '*');
+                    }
+                }
+            } else if (e.data.type === 'CLOSE_MODULE') {
+                closeDetailWindow();
+            }
+        });
+
+        // Draggable Logic
+        function makeDraggable(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            const header = document.getElementById("detail-header");
+            if (header) {
+                header.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        
+        makeDraggable(document.getElementById("detail-window"));
+
+        // ==========================================
+        // GLOBE
+        // ==========================================
+        
+        let world;
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        function initGlobe() {
+            world = Globe()
+                (document.getElementById('globe-container'))
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+                .showAtmosphere(false);
+            
+            world.controls().autoRotate = true;
+            world.controls().autoRotateSpeed = 0.2;
+            
+            fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
+                .then(res => res.json())
+                .then(countries => {
+                    world
+                        .polygonsData(countries.features)
+                        .polygonAltitude(0.01)
+                        .polygonCapColor(() => 'rgba(255, 255, 255, 0.05)')
+                        .polygonSideColor(() => 'rgba(255, 255, 255, 0.02)')
+                        .polygonStrokeColor(() => '#ffffff')
+                        .polygonLabel(({ properties: d }) => `
+                            <div style="background: #000000; padding: 6px 10px; border: 1px solid #ffffff; font-family: 'Roboto Mono', monospace; font-size: 10px;">
+                                <b>${d.ADMIN}</b>
+                            </div>
+                        `)
+                        .onPolygonClick((polygon) => {
+                            openDetailWindow(polygon.properties.ADMIN);
+                        })
+                        .onPolygonHover(polygon => {
+                            world.polygonCapColor(d => d === polygon ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)');
+                        });
+                    
+                    setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
+                })
+                .catch(err => {
+                    console.error("Error loading country data:", err);
+                    setTimeout(() => document.getElementById('loading-overlay').classList.add('hidden'), 500);
+                });
+        }
+
+        // Fallback
+        setTimeout(() => {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+            }
+        }, 10000);
+
+        // ==========================================
+        // START
+        // ==========================================
+        setTimeout(initGlobe, 100);
+    </script>
+</body>
+</html>

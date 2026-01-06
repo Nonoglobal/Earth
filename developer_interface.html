@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEV INTERFACE - Tactical Intelligence System</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
         
@@ -348,6 +349,51 @@
             0%, 100% { background: #00ff00; }
             50% { background: #ffff00; }
         }
+
+        /* MAP STYLES */
+        .leaflet-tile-pane {
+            filter: brightness(0.35) contrast(1.3) saturate(0.2);
+        }
+        .leaflet-container {
+            background: #000 !important;
+        }
+
+        /* Fullscreen Map Mode */
+        #dev-map-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99999;
+            background: #000 !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            display: flex;
+            flex-direction: column;
+        }
+        #dev-map-container.fullscreen #dev-map {
+            flex: 1;
+            height: auto !important;
+            border: 1px solid #333;
+        }
+
+        /* EDITOR OVERLAY (IFRAME) */
+        #editor-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 100000;
+            display: none;
+        }
+        #editor-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -373,7 +419,25 @@
             <div id="list-header">
                 <h2>COUNTRIES</h2>
             </div>
+            <div style="padding: 12px; border-bottom: 1px solid #333; background: #050505;">
+                <input type="text" class="form-input" placeholder="SEARCH COUNTRY / REGION..." 
+                       style="padding: 8px; font-size: 10px; margin-bottom: 8px;" 
+                       oninput="onSearchInput(this.value)">
+                <select class="form-select" style="padding: 8px; font-size: 10px;" onchange="applyFilter(this.value)">
+                    <option value="all">FILTER: SHOW ALL</option>
+                    <option value="war">HAS WAR DATA</option>
+                    <option value="critical">STABILITY: CRITICAL</option>
+                    <option value="warning">STABILITY: WARNING</option>
+                    <option value="stable">STABILITY: STABLE</option>
+                    <option value="news">HAS NEWS</option>
+                </select>
+            </div>
             <div id="country-list"></div>
+            <div id="pagination" style="padding: 10px; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center; background: #050505;">
+                <button class="btn" onclick="changePage(-1)" style="margin:0; padding: 4px 10px;">&lt;</button>
+                <span id="page-info" style="font-size: 10px; color: #888;">1 / 1</span>
+                <button class="btn" onclick="changePage(1)" style="margin:0; padding: 4px 10px;">&gt;</button>
+            </div>
             <div id="instructions">
                 <strong style="color:#fff">HOW TO USE:</strong><br>
                 1. Click a country to select<br>
@@ -396,6 +460,7 @@
                     <button class="tab" data-tab="security" onclick="switchTab('security')">SECURITY</button>
                     <button class="tab" data-tab="demo" onclick="switchTab('demo')">DEMO</button>
                     <button class="tab" data-tab="news" onclick="switchTab('news')">NEWS</button>
+                    <button class="tab" data-tab="tactics" onclick="switchTab('tactics')">TACTICS</button>
                 </div>
             </div>
             
@@ -415,6 +480,11 @@
         </div>
     </div>
     
+    <!-- Fullscreen Editor Overlay -->
+    <div id="editor-overlay">
+        <iframe id="editor-frame" src="about:blank"></iframe>
+    </div>
+
     <!-- JSON Viewer Modal -->
     <div class="modal-bg" id="json-modal">
         <div class="modal-box" style="width:700px;max-height:80vh;">
@@ -430,6 +500,7 @@
     <div id="toast"></div>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJson(event)">
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // =====================================================
 // DATABASE STRUCTURE
@@ -558,6 +629,7 @@ function fetchAndPopulateCountries() {
     fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
         .then(function(res) { return res.json(); })
         .then(function(data) {
+            window.countryGeoJsonCache = data;
             if (data && data.features) {
                 data.features.forEach(function(feature) {
                     var name = feature.properties.ADMIN;
@@ -585,13 +657,63 @@ function fetchAndPopulateCountries() {
 // =====================================================
 // COUNTRY LIST RENDERING
 // =====================================================
+
+var currentPage = 1;
+var itemsPerPage = 15;
+var currentSearch = '';
+var currentFilter = 'all';
+
+function onSearchInput(val) {
+    currentSearch = val.toLowerCase();
+    currentPage = 1;
+    renderCountryList();
+}
+
+function applyFilter(val) {
+    currentFilter = val;
+    currentPage = 1;
+    renderCountryList();
+}
+
+function changePage(delta) {
+    currentPage += delta;
+    renderCountryList();
+}
+
 function renderCountryList() {
     var container = document.getElementById('country-list');
     var html = '';
     
     var names = Object.keys(database.countries).sort();
     
-    names.forEach(function(name) {
+    // Filter & Search Logic
+    names = names.filter(function(name) {
+        var c = database.countries[name];
+        var matchesSearch = name.toLowerCase().includes(currentSearch) || (c.region && c.region.toLowerCase().includes(currentSearch));
+        
+        if (!matchesSearch) return false;
+        
+        if (currentFilter === 'war') return c.hasWarData;
+        if (currentFilter === 'critical') return c.intel && c.intel.stabilitaet === 'critical';
+        if (currentFilter === 'warning') return c.intel && c.intel.stabilitaet === 'warning';
+        if (currentFilter === 'stable') return c.intel && c.intel.stabilitaet === 'stable';
+        if (currentFilter === 'news') return c.news && c.news.length > 0;
+        
+        return true;
+    });
+
+    // Pagination Logic
+    var totalPages = Math.ceil(names.length / itemsPerPage) || 1;
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    document.getElementById('page-info').textContent = currentPage + ' / ' + totalPages;
+    
+    var start = (currentPage - 1) * itemsPerPage;
+    var end = start + itemsPerPage;
+    var pageItems = names.slice(start, end);
+    
+    pageItems.forEach(function(name) {
         var country = database.countries[name];
         var isSelected = selectedCountry === name;
         var completeness = getCompleteness(country);
@@ -607,7 +729,7 @@ function renderCountryList() {
         html += '</div>';
     });
     
-    if (names.length === 0) {
+    if (pageItems.length === 0) {
         html = '<div style="padding:20px;text-align:center;color:#666;font-size:10px;">No countries yet.<br>Click + to add one.</div>';
     }
     
@@ -675,6 +797,10 @@ function renderForm() {
     
     if (currentTab === 'news') {
         renderNewsEditor();
+        return;
+    }
+    if (currentTab === 'tactics') {
+        renderTacticsEditor();
         return;
     }
 
@@ -771,6 +897,79 @@ function renderNewsEditor() {
     }
     
     document.getElementById('form-area').innerHTML = html;
+}
+
+function renderTacticsEditor() {
+    var country = database.countries[selectedCountry];
+    // Initialize tactics if missing
+    if (!country.tactics) {
+        country.tactics = [
+            { name: 'ASSAULT PLAN ALPHA', data: '' },
+            { name: 'DEFENSE LINE BETA', data: '' },
+            { name: 'AIR SUPERIORITY', data: '' },
+            { name: 'NAVAL BLOCKADE', data: '' },
+            { name: 'COVERT OPS', data: '' }
+        ];
+    }
+    
+    var html = '<div class="section-title">TACTICAL OPTIONS (1-5)</div>';
+    html += '<div style="font-size:9px;color:#666;margin-bottom:15px;">Define 5 strategic options. Leave DATA empty for auto-generated markers.</div>';
+
+    // Map Editor Container
+    html += '<div id="dev-map-container" style="margin-bottom:20px;border:1px solid #333;padding:10px;background:#050505;">';
+    html += '  <div style="display:flex;justify-content:space-between;margin-bottom:10px;">';
+    html += '    <select id="map-tactic-select" class="form-select" style="width:auto;padding:4px;" onchange="switchMapTactic(this.value)">';
+    country.tactics.forEach(function(t, i) {
+        html += '<option value="' + i + '">EDIT: ' + (i+1) + '. ' + escapeHtml(t.name) + '</option>';
+    });
+    html += '    </select>';
+    
+    html += '    <select id="draw-style" class="form-select" style="width:auto;padding:4px;margin-left:5px;">';
+    html += '      <option value="#ff0000">MILITARY / CONFLICT (Red)</option>';
+    html += '      <option value="#ffaa00">RESOURCES / INDUSTRY (Gold)</option>';
+    html += '      <option value="#00c8ff">INFRASTRUCTURE (Cyan)</option>';
+    html += '      <option value="#aa00ff">POLITICAL / ADMIN (Purple)</option>';
+    html += '      <option value="#00ff00">GEOGRAPHY / AGRI (Green)</option>';
+    html += '      <option value="#ffffff">GENERAL / CITIES (White)</option>';
+    html += '    </select>';
+
+    html += '    <div style="display:flex;gap:5px;">';
+    html += '      <button class="btn" onclick="toggleMapFullscreen()">FULLSCREEN</button>';
+    html += '      <button class="btn" onclick="openExternalEditor()">FULLSCREEN EDITOR</button>';
+    html += '      <button class="btn" onclick="setDrawMode(\'circle\')" id="btn-draw-circle">CIRCLE</button>';
+    html += '      <button class="btn" onclick="setDrawMode(\'line\')" id="btn-draw-line">ARROW</button>';
+    html += '      <button class="btn" onclick="setDrawMode(\'polygon\')" id="btn-draw-poly">POLY</button>';
+    html += '      <button class="btn" onclick="setDrawMode(\'freehand\')" id="btn-draw-free">FREE</button>';
+    html += '      <button class="btn" onclick="setDrawMode(\'marker\')" id="btn-draw-marker">POINT</button>';
+    html += '      <button class="btn" onclick="clearCurrentTacticMap()" style="color:#ff3333;border-color:#ff3333;">CLEAR</button>';
+    html += '      <button class="btn primary" onclick="openExternalEditor()">OPEN EDITOR</button>';
+    html += '    </div>';
+    html += '  </div>';
+    html += '  <div id="dev-map" style="height:350px;width:100%;background:#000;"></div>';
+    html += '  <div id="map-status" style="font-size:9px;color:#666;margin-top:5px;">SELECT TOOL TO DRAW</div>';
+    html += '  <div id="map-status" style="font-size:9px;color:#666;margin-top:5px;">PREVIEW ONLY - CLICK "OPEN EDITOR" TO MODIFY</div>';
+    html += '</div>';
+    
+    country.tactics.forEach(function(t, i) {
+        html += '<div class="preview-item" style="margin-bottom:15px;">';
+        html += '  <div class="preview-label" style="color:#00ff00;">OPTION ' + (i+1) + '</div>';
+        html += '  <div class="form-group" style="margin-bottom:8px;">';
+        html += '    <label class="form-label">OPTION NAME</label>';
+        html += '    <input type="text" class="form-input" value="' + escapeHtml(t.name) + '" oninput="updateTactic(' + i + ', \'name\', this.value)">';
+        html += '  </div>';
+        html += '  <div class="form-group" style="margin-bottom:0;">';
+        html += '    <label class="form-label">MAP DATA (JSON)</label>';
+        html += '    <textarea id="tactic-data-' + i + '" class="form-textarea" style="min-height:50px;font-family:monospace;" placeholder=\'[{"type":"circle","lat":0,"lng":0,"radius":50000}]\' oninput="updateTactic(' + i + ', \'data\', this.value)">' + escapeHtml(t.data) + '</textarea>';
+        html += '  </div>';
+        html += '</div>';
+    });
+    document.getElementById('form-area').innerHTML = html;
+    setTimeout(initDevMap, 100);
+}
+
+function updateTactic(index, key, value) {
+    database.countries[selectedCountry].tactics[index][key] = value;
+    autoSave();
 }
 
 // =====================================================
@@ -1039,6 +1238,237 @@ function toast(msg, isError) {
     setTimeout(function() {
         t.className = '';
     }, 3000);
+}
+
+// =====================================================
+// MAP EDITOR
+// =====================================================
+var devMap = null;
+var devMapLayers = [];
+var currentDrawMode = null;
+var currentTacticIndex = 0;
+var drawPoints = [];
+
+function initDevMap() {
+    if (devMap) {
+        devMap.remove();
+        devMap = null;
+    }
+    
+    if (!document.getElementById('dev-map')) return;
+    
+    devMap = L.map('dev-map', {
+        zoomControl: true,
+        attributionControl: false
+    }).setView([0, 0], 2);
+    
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18
+    }).addTo(devMap);
+    
+    // Fit bounds
+    if (window.countryGeoJsonCache && selectedCountry) {
+        var feature = window.countryGeoJsonCache.features.find(function(f) {
+            return f.properties.ADMIN === selectedCountry;
+        });
+        if (feature) {
+            // Glow effect
+            L.geoJSON(feature, {
+                style: { color: '#00c8ff', weight: 4, opacity: 0.15, fill: false }
+            }).addTo(devMap);
+            
+            // Main outline
+            var layer = L.geoJSON(feature, {
+                style: { color: '#00c8ff', weight: 1.5, opacity: 0.6, fillColor: '#00c8ff', fillOpacity: 0.03 }
+            }).addTo(devMap);
+            devMap.fitBounds(layer.getBounds(), { padding: [20, 20] });
+        }
+    }
+    
+    // Map Events
+    devMap.on('click', onMapClick);
+    devMap.on('dblclick', onMapDblClick);
+    devMap.on('mousedown', onMapMouseDown);
+    devMap.on('mousemove', onMapMouseMove);
+    devMap.on('mouseup', onMapMouseUp);
+    
+    switchMapTactic(0);
+}
+
+function switchMapTactic(index) {
+    currentTacticIndex = parseInt(index);
+    var sel = document.getElementById('map-tactic-select');
+    if(sel) sel.value = currentTacticIndex;
+    renderMapShapes();
+}
+
+function renderMapShapes() {
+    devMapLayers.forEach(function(l) { devMap.removeLayer(l); });
+    devMapLayers = [];
+    
+    var country = database.countries[selectedCountry];
+    var tactic = country.tactics[currentTacticIndex];
+    if (!tactic || !tactic.data) return;
+    
+    try {
+        var shapes = JSON.parse(tactic.data);
+        shapes.forEach(function(s) {
+            var color = s.color || '#00ff00';
+            
+            if (s.type === 'circle') {
+                var l = L.circle([s.lat, s.lng], { 
+                    color: color, 
+                    fillColor: color, 
+                    fillOpacity: 0.1, 
+                    radius: s.radius,
+                    weight: 1,
+                    dashArray: '5, 5'
+                }).addTo(devMap);
+                devMapLayers.push(l);
+            } else if (s.type === 'line') {
+                var l = L.polyline(s.points, { 
+                    color: color, 
+                    weight: 2,
+                    dashArray: '10, 5'
+                }).addTo(devMap);
+                devMapLayers.push(l);
+                if (s.points.length > 0) {
+                    var end = s.points[s.points.length-1];
+                    var h = L.circleMarker(end, { radius: 3, color: color, fillColor: color, fillOpacity: 1 }).addTo(devMap);
+                    devMapLayers.push(h);
+                }
+            } else if (s.type === 'polygon') {
+                var l = L.polygon(s.points, {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.2,
+                    weight: 1
+                }).addTo(devMap);
+                devMapLayers.push(l);
+            } else if (s.type === 'marker') {
+                var l = L.circleMarker([s.lat, s.lng], {
+                    radius: 4,
+                    color: color,
+                    fillColor: '#000',
+                    fillOpacity: 1,
+                    weight: 2
+                }).addTo(devMap);
+                devMapLayers.push(l);
+            }
+        });
+    } catch(e) {}
+}
+
+function setDrawMode(mode) {
+    currentDrawMode = mode;
+    drawPoints = [];
+    document.getElementById('map-status').textContent = mode === 'circle' ? 'CLICK TO PLACE CIRCLE' : 'CLICK START POINT';
+    document.getElementById('btn-draw-circle').style.background = mode === 'circle' ? '#fff' : 'transparent';
+    document.getElementById('btn-draw-circle').style.color = mode === 'circle' ? '#000' : '#fff';
+    document.getElementById('btn-draw-line').style.background = mode === 'line' ? '#fff' : 'transparent';
+    document.getElementById('btn-draw-line').style.color = mode === 'line' ? '#000' : '#fff';
+}
+
+function onMapClick(e) {
+    if (!currentDrawMode) return;
+    var country = database.countries[selectedCountry];
+    var tactic = country.tactics[currentTacticIndex];
+    var shapes = [];
+    try { if (tactic.data) shapes = JSON.parse(tactic.data); } catch(e) {}
+    
+    if (currentDrawMode === 'circle') {
+        shapes.push({ type: 'circle', lat: e.latlng.lat, lng: e.latlng.lng, radius: 50000 });
+        saveShapes(shapes);
+        setDrawMode(null);
+    } else if (currentDrawMode === 'line') {
+        drawPoints.push([e.latlng.lat, e.latlng.lng]);
+        if (drawPoints.length === 1) {
+            document.getElementById('map-status').textContent = 'CLICK END POINT';
+            var m = L.circleMarker(e.latlng, { radius: 2, color: '#fff' }).addTo(devMap);
+            devMapLayers.push(m);
+        } else if (drawPoints.length === 2) {
+            shapes.push({ type: 'line', points: drawPoints });
+            saveShapes(shapes);
+            setDrawMode(null);
+        }
+    }
+}
+
+function saveShapes(shapes) {
+    var json = JSON.stringify(shapes);
+    database.countries[selectedCountry].tactics[currentTacticIndex].data = json;
+    var ta = document.getElementById('tactic-data-' + currentTacticIndex);
+    if (ta) ta.value = json;
+    autoSave();
+    renderMapShapes();
+    document.getElementById('map-status').textContent = 'SAVED';
+}
+
+function clearCurrentTacticMap() {
+    if(confirm('Clear all shapes for this tactic?')) saveShapes([]);
+}
+
+function openExternalEditor() {
+    if (!selectedCountry) return;
+    
+    var url = 'editor.html';
+    
+    var overlay = document.getElementById('editor-overlay');
+    var frame = document.getElementById('editor-frame');
+    
+    // Reset frame to ensure clean state
+    frame.src = 'about:blank';
+    setTimeout(function() {
+        frame.src = url;
+        overlay.style.display = 'block';
+    }, 50);
+}
+
+// Listen for messages from editor iframe
+window.addEventListener('message', function(event) {
+    var frame = document.getElementById('editor-frame');
+
+    if (event.data.type === 'EDITOR_READY') {
+        // Send data to editor
+        var countryData = database.countries[selectedCountry];
+        frame.contentWindow.postMessage({
+            type: 'INIT_DATA',
+            countryName: selectedCountry,
+            tacticIndex: currentTacticIndex,
+            countryData: countryData
+        }, '*');
+    }
+
+    if (event.data.type === 'CLOSE_EDITOR') {
+        document.getElementById('editor-overlay').style.display = 'none';
+        document.getElementById('editor-frame').src = 'about:blank';
+    }
+    
+    if (event.data.type === 'SAVE_DATA') {
+        // Update database with new shapes
+        var shapes = event.data.shapes;
+        database.countries[selectedCountry].tactics[currentTacticIndex].data = JSON.stringify(shapes);
+        
+        // Update the textarea in the form if it exists
+        var ta = document.getElementById('tactic-data-' + currentTacticIndex);
+        if (ta) ta.value = JSON.stringify(shapes);
+        
+        saveData(); // This saves to localStorage and notifies others
+        
+        // Close editor
+        document.getElementById('editor-overlay').style.display = 'none';
+        frame.src = 'about:blank';
+        
+        renderMapShapes(); // Refresh preview map
+    }
+});
+
+function toggleMapFullscreen() {
+    var c = document.getElementById('dev-map-container');
+    c.classList.toggle('fullscreen');
+    setTimeout(function() {
+        if (devMap) devMap.invalidateSize();
+    }, 100);
 }
 
 // =====================================================

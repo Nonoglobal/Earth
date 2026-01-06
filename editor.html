@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Map Editor</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #0b0f1a;
+      color: white;
+      font-family: 'Roboto Mono', monospace;
+      overflow: hidden;
+    }
+
+    #topbar {
+      height: 60px;
+      background: #000;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 15px;
+      justify-content: space-between;
+    }
+
+    #map {
+      height: calc(100% - 60px);
+      width: 100%;
+      background: #000;
+    }
+
+    .control-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    select, button {
+      background: #000;
+      color: white;
+      border: 1px solid #333;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    select:focus, button:focus { outline: none; border-color: #00ff00; }
+    button:hover { background: #1a1a1a; color: #fff; border-color: #fff; }
+
+    .btn-save {
+        background: #00ff00;
+        color: #000;
+        border-color: #00ff00;
+        font-weight: bold;
+    }
+    .btn-save:hover { background: #00cc00; border-color: #00cc00; }
+
+    .btn-close {
+        border-color: #ff3333;
+        color: #ff3333;
+    }
+    .btn-close:hover { background: #ff3333; color: #000; }
+
+    /* Leaflet Dark Mode */
+    .leaflet-tile-pane { filter: brightness(0.35) contrast(1.3) saturate(0.2); }
+    .leaflet-container { background: #000 !important; }
+    
+    /* Draw Toolbar Customization */
+    .leaflet-draw-toolbar a { background-color: #000; border-color: #333; color: #fff; }
+    .leaflet-draw-toolbar a:hover { background-color: #222; }
+    .leaflet-draw-actions { background-color: #000; }
+    .leaflet-draw-actions a { background-color: #111; color: #fff; border-left: 1px solid #333; }
+  </style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="control-group">
+      <div id="info-label" style="font-weight:bold; color:#00c8ff;">LOADING...</div>
+  </div>
+
+  <div class="control-group">
+      <label>COLOR:</label>
+      <select id="color-select">
+        <option value="#ff0000">MILITARY (Red)</option>
+        <option value="#ffaa00">RESOURCES (Gold)</option>
+        <option value="#00c8ff">INFRASTRUCTURE (Cyan)</option>
+        <option value="#aa00ff">POLITICAL (Purple)</option>
+        <option value="#00ff00">GEOGRAPHY (Green)</option>
+        <option value="#ffffff">GENERAL (White)</option>
+      </select>
+  </div>
+
+  <div class="control-group">
+      <button class="btn-close" onclick="closeEditor()">CANCEL</button>
+      <button class="btn-save" onclick="saveData()">SAVE & CLOSE</button>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+<script>
+  // 1. Setup Map
+  const map = L.map("map", { zoomControl: false }).setView([0, 0], 3);
+  L.control.zoom({ position: 'topright' }).addTo(map);
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: 'Esri'
+  }).addTo(map);
+
+  // 2. Feature Group for Drawn Items
+  const drawnItems = new L.FeatureGroup();
+  map.addLayer(drawnItems);
+
+  // 3. Initialize Draw Control
+  const drawControl = new L.Control.Draw({
+    position: 'topleft',
+    edit: {
+      featureGroup: drawnItems
+    },
+    draw: {
+      polyline: { shapeOptions: { color: '#00ff00' } },
+      polygon: { shapeOptions: { color: '#00ff00' }, allowIntersection: false },
+      rectangle: false, // Not supported by custom format yet
+      circle: { shapeOptions: { color: '#00ff00' } },
+      marker: true,
+      circlemarker: false
+    }
+  });
+  map.addControl(drawControl);
+
+  // 4. Handle Creation
+  map.on(L.Draw.Event.CREATED, function (event) {
+    const layer = event.layer;
+    const color = document.getElementById('color-select').value;
+    
+    // Apply selected color
+    if (layer.setStyle) {
+        layer.setStyle({ color: color, fillColor: color });
+    }
+    // Store color in options for later retrieval
+    layer.options.color = color;
+    
+    drawnItems.addLayer(layer);
+  });
+
+  // 5. Data Loading Logic
+  let currentCountryName = "";
+
+  window.addEventListener('message', function(event) {
+      if (event.data.type === 'INIT_DATA') {
+          const data = event.data;
+          currentCountryName = data.countryName;
+          const tacticIndex = data.tacticIndex;
+          const countryData = data.countryData;
+          
+          if (countryData) {
+              const tactic = countryData.tactics[tacticIndex];
+              document.getElementById('info-label').textContent = `${currentCountryName.toUpperCase()} // ${tactic.name}`;
+              
+              // Clear existing
+              drawnItems.clearLayers();
+              loadShapes(tactic.data);
+              loadCountryOutline(currentCountryName);
+          }
+      }
+  });
+
+  function loadCountryOutline(name) {
+      fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
+        .then(res => res.json())
+        .then(data => {
+            const feature = data.features.find(f => f.properties.ADMIN === name);
+            if (feature) {
+                const layer = L.geoJSON(feature, {
+                    style: { color: '#00c8ff', weight: 2, fill: false, opacity: 0.3 }
+                }).addTo(map);
+                map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+            }
+        });
+  }
+
+  function loadShapes(jsonString) {
+      if (!jsonString) return;
+      try {
+          const shapes = JSON.parse(jsonString);
+          shapes.forEach(s => {
+              let layer;
+              const color = s.color || '#00ff00';
+              
+              if (s.type === 'circle') {
+                  layer = L.circle([s.lat, s.lng], { radius: s.radius, color: color, fillColor: color });
+              } else if (s.type === 'line') {
+                  layer = L.polyline(s.points, { color: color });
+              } else if (s.type === 'polygon') {
+                  layer = L.polygon(s.points, { color: color, fillColor: color });
+              } else if (s.type === 'marker') {
+                  layer = L.marker([s.lat, s.lng]);
+              }
+
+              if (layer) {
+                  layer.options.color = color; // Store for save
+                  drawnItems.addLayer(layer);
+              }
+          });
+      } catch(e) { console.error("Error parsing shapes", e); }
+  }
+
+  // 6. Save Logic (Convert Leaflet Layers -> Custom JSON)
+  function saveData() {
+    const shapes = [];
+    
+    drawnItems.eachLayer(layer => {
+        const color = layer.options.color || document.getElementById('color-select').value;
+        
+        if (layer instanceof L.Circle) {
+            shapes.push({
+                type: 'circle',
+                lat: layer.getLatLng().lat,
+                lng: layer.getLatLng().lng,
+                radius: layer.getRadius(),
+                color: color
+            });
+        } else if (layer instanceof L.Polygon && !(layer instanceof L.Rectangle)) {
+            const latlngs = layer.getLatLngs()[0].map(ll => [ll.lat, ll.lng]);
+            shapes.push({
+                type: 'polygon',
+                points: latlngs,
+                color: color
+            });
+        } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+            const latlngs = layer.getLatLngs().map(ll => [ll.lat, ll.lng]);
+            shapes.push({
+                type: 'line',
+                points: latlngs,
+                color: color
+            });
+        } else if (layer instanceof L.Marker) {
+            shapes.push({
+                type: 'marker',
+                lat: layer.getLatLng().lat,
+                lng: layer.getLatLng().lng,
+                color: color
+            });
+        }
+    });
+
+    // Send back to parent
+    window.parent.postMessage({
+        type: 'SAVE_DATA',
+        shapes: shapes
+    }, '*');
+  }
+
+  function closeEditor() {
+      window.parent.postMessage({ type: 'CLOSE_EDITOR' }, '*');
+  }
+
+  // Signal ready
+  window.parent.postMessage({ type: 'EDITOR_READY' }, '*');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* ==========================================
+           HINTERGRUND
+           ========================================== */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+        
+        /* ==========================================
+           LOADING CONTAINER
+           ========================================== */
+        #loading-screen {
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.2s;
+        }
+        
+        #loading-screen.fade-out {
+            animation: fadeOut 0.6s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.98); }
+        }
+        
+        /* ==========================================
+           LOGO / TITEL
+           ========================================== */
+        .logo {
+            margin-bottom: 60px;
+        }
+        
+        .logo-text {
+            font-size: 32px;
+            font-weight: 200;
+            letter-spacing: 16px;
+            color: #ffffff;
+            margin-left: 16px; /* Optischer Ausgleich für letter-spacing */
+        }
+        
+        .logo-line {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #333, transparent);
+            margin: 20px auto 0;
+        }
+        
+        /* ==========================================
+           SPINNER - Minimalistischer Ring
+           ========================================== */
+        .spinner-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 50px;
+        }
+        
+        .spinner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+        }
+        
+        .spinner-arc {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        
+        .spinner-dot {
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Innerer Punkt */
+        .spinner-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: #333;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        }
+        
+        /* ==========================================
+           STATUS TEXT
+           ========================================== */
+        .status {
+            margin-bottom: 8px;
+        }
+        
+        .status-text {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            color: #666666;
+            text-transform: uppercase;
+        }
+        
+        .status-sub {
+            font-size: 10px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #333333;
+            margin-top: 6px;
+            min-height: 14px;
+        }
+        
+        /* ==========================================
+           PROGRESS BAR
+           ========================================== */
+        .progress-container {
+            width: 200px;
+            margin: 30px auto 0;
+        }
+        
+        .progress-bar-bg {
+            height: 1px;
+            background: #1a1a1a;
+            position: relative;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #ffffff;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 10px;
+            font-weight: 300;
+            color: #333333;
+            margin-top: 12px;
+            letter-spacing: 2px;
+        }
+        
+        /* ==========================================
+           IFRAME (versteckt)
+           ========================================== */
+        #preload-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.6s ease;
+        }
+        
+        #preload-frame.visible {
+            opacity: 1;
+            z-index: 100;
+        }
+        
+        /* ==========================================
+           CORNER MARKERS (Palantir-Style)
+           ========================================== */
+        .corner {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            opacity: 0.15;
+        }
+        
+        .corner-tl {
+            top: 30px;
+            left: 30px;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+        }
+        
+        .corner-tr {
+            top: 30px;
+            right: 30px;
+            border-top: 1px solid #fff;
+            border-right: 1px solid #fff;
+        }
+        
+        .corner-bl {
+            bottom: 30px;
+            left: 30px;
+            border-bottom: 1px solid #fff;
+            border-left: 1px solid #fff;
+        }
+        
+        .corner-br {
+            bottom: 30px;
+            right: 30px;
+            border-bottom: 1px solid #fff;
+            border-right: 1px solid #fff;
+        }
+        
+        /* ==========================================
+           VERSION TAG
+           ========================================== */
+        .version {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #222222;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hintergrund Pattern -->
+    <div class="bg-pattern"></div>
+    
+    <!-- Corner Markers -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <!-- Logo -->
+        <div class="logo">
+            <div class="logo-text">ATLAS</div>
+            <div class="logo-line"></div>
+        </div>
+        
+        <!-- Spinner -->
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="spinner-arc">
+                <div class="spinner-dot"></div>
+            </div>
+            <div class="spinner-center"></div>
+        </div>
+        
+        <!-- Status -->
+        <div class="status">
+            <div class="status-text" id="status-text">INITIALIZING</div>
+            <div class="status-sub" id="status-sub"></div>
+        </div>
+        
+        <!-- Progress -->
+        <div class="progress-container">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0%</div>
+        </div>
+    </div>
+    
+    <!-- Version -->
+    <div class="version">V1.0.0</div>
+    
+    <!-- Versteckter iframe -->
+    <iframe id="preload-frame" src="about:blank"></iframe>
+
+    <script>
+        // ==========================================
+        // ATLAS LOADER
+        // ==========================================
+        
+        const elements = {
+            screen: document.getElementById('loading-screen'),
+            status: document.getElementById('status-text'),
+            sub: document.getElementById('status-sub'),
+            bar: document.getElementById('progress-bar'),
+            percent: document.getElementById('progress-text'),
+            frame: document.getElementById('preload-frame')
+        };
+        
+        let progress = 0;
+        let targetProgress = 0;
+        let isReady = false;
+        
+        // Status setzen
+        function setStatus(text, sub) {
+            elements.status.textContent = text;
+            elements.sub.textContent = sub || '';
+        }
+        
+        // Fortschritt setzen
+        function setProgress(value) {
+            targetProgress = Math.min(100, Math.max(0, value));
+        }
+        
+        // Sanfte Animation
+        function animate() {
+            if (progress < targetProgress) {
+                progress += 0.5;
+                if (progress > targetProgress) progress = targetProgress;
+                
+                elements.bar.style.width = progress + '%';
+                elements.percent.textContent = Math.round(progress) + '%';
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+        
+        // Wechsel zur Hauptseite
+        function launch() {
+            setStatus('READY', '');
+            setProgress(100);
+            
+            const check = setInterval(() => {
+                if (progress >= 99) {
+                    clearInterval(check);
+                    
+                    elements.screen.classList.add('fade-out');
+                    
+                    setTimeout(() => {
+                        elements.frame.classList.add('visible');
+                    }, 300);
+                    
+                    setTimeout(() => {
+                        elements.screen.style.display = 'none';
+                    }, 800);
+                }
+            }, 50);
+        }
+        
+        // Hilfsfunktion
+        function delay(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+        
+        // ==========================================
+        // LOADING SEQUENCE
+        // ==========================================
+        
+        async function start() {
+            setStatus('INITIALIZING', 'System startup');
+            setProgress(5);
+            await delay(400);
+            
+            // iframe laden
+            elements.frame.src = 'index.html';
+            
+            setStatus('CONNECTING', 'Establishing connection');
+            setProgress(15);
+            await delay(500);
+            
+            setStatus('LOADING', 'Globe module');
+            setProgress(30);
+            await delay(600);
+            
+            setStatus('PROCESSING', 'Geographic data');
+            setProgress(50);
+            await delay(500);
+            
+            setStatus('BUILDING', 'Interface components');
+            setProgress(70);
+            await delay(400);
+            
+            setStatus('SYNCING', 'Data streams');
+            setProgress(85);
+            
+            // Warte auf Signal oder Timeout
+            const start = Date.now();
+            while (!isReady && (Date.now() - start) < 8000) {
+                await delay(100);
+            }
+            
+            setStatus('FINALIZING', '');
+            setProgress(95);
+            await delay(200);
+            
+            launch();
+        }
+        
+        // ==========================================
+        // KOMMUNIKATION
+        // ==========================================
+        
+        window.addEventListener('message', (e) => {
+            if (e.data === 'PAGE_READY') {
+                isReady = true;
+            }
+        });
+        
+        elements.frame.addEventListener('load', () => {
+            setTimeout(() => { isReady = true; }, 1500);
+        });
+        
+        // ==========================================
+        // START
+        // ==========================================
+        start();
+    </script>
+</body>
+</html>
