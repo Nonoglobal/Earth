@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS - Library Archives</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #050505;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            height: 60px;
+            background: #000;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .logo {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .search-bar {
+            background: #111;
+            border: 1px solid #333;
+            padding: 8px 15px;
+            width: 300px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 40px;
+        }
+
+        /* Sidebar */
+        .sidebar-title {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #222;
+        }
+
+        .nav-item {
+            padding: 12px 0;
+            color: #888;
+            cursor: pointer;
+            font-size: 11px;
+            transition: color 0.2s;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #fff;
+        }
+
+        .nav-count {
+            font-size: 9px;
+            background: #111;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        /* Grid */
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .doc-card {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doc-card:hover {
+            border-color: #fff;
+            transform: translateY(-2px);
+            background: #111;
+        }
+
+        .doc-icon {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .doc-card:hover .doc-icon {
+            color: #fff;
+        }
+
+        .doc-title {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .doc-meta {
+            font-size: 9px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .doc-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 8px;
+            padding: 2px 4px;
+            border: 1px solid #333;
+            color: #666;
+        }
+
+        .doc-card.classified .doc-tag {
+            border-color: #ff3333;
+            color: #ff3333;
+            background: rgba(255, 50, 50, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">ATLAS ARCHIVES</div>
+        <input type="text" class="search-bar" placeholder="SEARCH DATABASE..." oninput="filterDocs(this.value)">
+    </header>
+
+    <main>
+        <aside>
+            <div class="sidebar-title">CLASSIFICATION</div>
+            <div class="nav-item active">
+                <span>ALL DOCUMENTS</span>
+                <span class="nav-count">12</span>
+            </div>
+            <div class="nav-item">
+                <span>TOP SECRET</span>
+                <span class="nav-count">4</span>
+            </div>
+            <div class="nav-item">
+                <span>CONFIDENTIAL</span>
+                <span class="nav-count">5</span>
+            </div>
+            <div class="nav-item">
+                <span>PUBLIC RECORD</span>
+                <span class="nav-count">3</span>
+            </div>
+
+            <div class="sidebar-title" style="margin-top: 40px;">SYSTEM</div>
+            <div class="nav-item" onclick="window.close()">
+                <span>EXIT LIBRARY</span>
+            </div>
+        </aside>
+
+        <div class="doc-grid" id="grid">
+            <!-- Generated via JS -->
+        </div>
+    </main>
+
+    <script>
+        const documents = [
+            { title: "Protocol Omega", type: "PDF", size: "2.4 MB", date: "2025-01-12", level: "TOP SECRET" },
+            { title: "Global Energy Report", type: "DOCX", size: "1.1 MB", date: "2024-12-20", level: "CONFIDENTIAL" },
+            { title: "Agent Roster 2025", type: "DB", size: "45 MB", date: "2025-01-01", level: "TOP SECRET" },
+            { title: "Surveillance Logs: EU", type: "LOG", size: "890 MB", date: "2025-01-14", level: "CONFIDENTIAL" },
+            { title: "Network Topology", type: "IMG", size: "4.2 MB", date: "2024-11-05", level: "INTERNAL" },
+            { title: "Budget Analysis Q1", type: "XLS", size: "0.5 MB", date: "2025-01-10", level: "CONFIDENTIAL" },
+            { title: "Project: BLACKOUT", type: "PDF", size: "12 MB", date: "2023-08-15", level: "TOP SECRET" },
+            { title: "Public Relations Guide", type: "PDF", size: "3.1 MB", date: "2024-05-20", level: "PUBLIC" },
+            { title: "Satellite Telemetry", type: "DAT", size: "12 GB", date: "LIVE", level: "TOP SECRET" },
+            { title: "Incident Report #442", type: "TXT", size: "4 KB", date: "2025-01-13", level: "INTERNAL" },
+            { title: "Training Manual V2", type: "PDF", size: "15 MB", date: "2024-01-01", level: "PUBLIC" },
+            { title: "Cipher Keys Backup", type: "KEY", size: "2 KB", date: "2025-01-15", level: "TOP SECRET" }
+        ];
+
+        function renderDocs(filter = "") {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+
+            documents.forEach(doc => {
+                if (doc.title.toLowerCase().includes(filter.toLowerCase())) {
+                    const isClassified = doc.level === "TOP SECRET";
+                    const html = `
+                        <div class="doc-card ${isClassified ? 'classified' : ''}">
+                            <div class="doc-tag">${doc.level}</div>
+                            <div class="doc-icon">📄</div>
+                            <div class="doc-title">${doc.title}</div>
+                            <div class="doc-meta">
+                                ${doc.type} • ${doc.size}<br>
+                                ${doc.date}
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += html;
+                }
+            });
+        }
+
+        function filterDocs(val) {
+            renderDocs(val);
+        }
+
+        // Init
+        renderDocs();
+    </script>
+</body>
+</html>
