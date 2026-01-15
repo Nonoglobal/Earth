@@ -1,5 +1,5 @@
 // =====================================================
-// ATLAS LIBRARY SERVER - RENDER DEPLOYMENT VERSION
+// ATLAS LIBRARY SERVER - RENDER FREE VERSION
 // =====================================================
 
 const express = require('express');
@@ -10,16 +10,13 @@ const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
-// Render verwendet die PORT Umgebungsvariable
 const PORT = process.env.PORT || 3002;
 
 // =====================================================
-// DIRECTORY SETUP - Render hat persistenten Speicher unter /var/data
-// Für Render Free: Daten werden bei Neustart gelöscht
-// Für Render mit Disk: Nutze /var/data
+// DIRECTORY SETUP - Für Render Free (im Projekt-Ordner)
 // =====================================================
-const DATA_DIR = process.env.RENDER ? '/var/data/library' : path.join(__dirname, 'data');
-const UPLOADS_DIR = process.env.RENDER ? '/var/data/uploads' : path.join(__dirname, 'uploads');
+const DATA_DIR = path.join(__dirname, 'data');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
 [DATA_DIR, UPLOADS_DIR].forEach(dir => {
     if (!fs.existsSync(dir)) {
