@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>F.R.I.D.A.Y.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+        }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ═══════════════════════════════════════════
+           INTRO ANIMATION
+        ═══════════════════════════════════════════ */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: introFade 0.5s ease 3s forwards;
+        }
+
+        @keyframes introFade {
+            to { opacity: 0; pointer-events: none; }
+        }
+
+        .intro-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: 20px;
+            color: var(--white);
+            opacity: 0;
+            animation: introLogoIn 1s ease 0.5s forwards;
+        }
+
+        @keyframes introLogoIn {
+            0% { opacity: 0; transform: scale(0.5); letter-spacing: 50px; }
+            100% { opacity: 1; transform: scale(1); letter-spacing: 20px; }
+        }
+
+        .intro-line {
+            width: 0;
+            height: 1px;
+            background: var(--white);
+            margin-top: 30px;
+            animation: introLineExpand 0.8s ease 1.5s forwards;
+        }
+
+        @keyframes introLineExpand {
+            to { width: 200px; }
+        }
+
+        .intro-subtitle {
+            font-size: 12px;
+            letter-spacing: 8px;
+            color: var(--gray-500);
+            margin-top: 20px;
+            opacity: 0;
+            animation: introSubIn 0.5s ease 2s forwards;
+        }
+
+        @keyframes introSubIn {
+            to { opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════════
+           MAIN CONTAINER
+        ═══════════════════════════════════════════ */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* ═══════════════════════════════════════════
+           STATUS HEADER
+        ═══════════════════════════════════════════ */
+        .status-header {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-600);
+            transition: all 0.3s;
+        }
+
+        .status-dot.online {
+            background: var(--white);
+            box-shadow: 0 0 10px var(--white);
+        }
+
+        .status-dot.listening {
+            background: var(--white);
+            animation: statusPulse 0.5s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--gray-500);
+            text-transform: uppercase;
+        }
+
+        /* ═══════════════════════════════════════════
+           VOICE ORB - Main Interaction
+        ═══════════════════════════════════════════ */
+        .voice-orb-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-orb {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: var(--black);
+            border: 1px solid var(--gray-700);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-orb:hover {
+            border-color: var(--gray-500);
+            transform: scale(1.02);
+        }
+
+        .voice-orb:active {
+            transform: scale(0.98);
+        }
+
+        .voice-orb.listening {
+            border-color: var(--white);
+            box-shadow: 0 0 40px rgba(255,255,255,0.2);
+        }
+
+        .voice-orb.speaking {
+            border-color: var(--gray-400);
+        }
+
+        /* Mic Icon */
+        .mic-icon {
+            width: 40px;
+            height: 40px;
+            fill: var(--gray-500);
+            transition: all 0.3s;
+        }
+
+        .voice-orb:hover .mic-icon {
+            fill: var(--white);
+        }
+
+        .voice-orb.listening .mic-icon {
+            fill: var(--white);
+        }
+
+        /* Outer Rings */
+        .orb-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid var(--gray-800);
+            pointer-events: none;
+        }
+
+        .orb-ring-1 {
+            width: 220px;
+            height: 220px;
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+
+        .orb-ring-2 {
+            width: 260px;
+            height: 260px;
+            animation: ringPulse 3s ease-in-out infinite 0.5s;
+        }
+
+        .voice-orb.listening ~ .orb-ring {
+            border-color: var(--gray-600);
+        }
+
+        @keyframes ringPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.02); }
+        }
+
+        /* ═══════════════════════════════════════════
+           WAVEFORM VISUALIZER
+        ═══════════════════════════════════════════ */
+        .waveform-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .voice-orb.listening .waveform-container,
+        .voice-orb.speaking .waveform-container {
+            opacity: 1;
+        }
+
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 60px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            height: 20px;
+            background: var(--white);
+            border-radius: 2px;
+            animation: waveAnimation 1s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(9) { animation-delay: 0s; }
+
+        @keyframes waveAnimation {
+            0%, 100% { height: 20px; opacity: 0.5; }
+            50% { height: 50px; opacity: 1; }
+        }
+
+        .voice-orb:not(.listening):not(.speaking) .wave-bar {
+            animation: none;
+            height: 3px;
+            opacity: 0.3;
+        }
+
+        /* ═══════════════════════════════════════════
+           TRANSCRIPT & RESPONSE
+        ═══════════════════════════════════════════ */
+        .text-display {
+            margin-top: 60px;
+            text-align: center;
+            max-width: 600px;
+            min-height: 100px;
+        }
+
+        .transcript {
+            font-size: 14px;
+            color: var(--gray-500);
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .transcript.visible {
+            opacity: 1;
+        }
+
+        .response {
+            font-size: 18px;
+            color: var(--white);
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .response.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ═══════════════════════════════════════════
+           BOTTOM CONTROLS
+        ═══════════════════════════════════════════ */
+        .bottom-controls {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--gray-800);
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            border-color: var(--gray-500);
+            color: var(--white);
+        }
+
+        .control-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* ═══════════════════════════════════════════
+           TEXT INPUT (Secondary)
+        ═══════════════════════════════════════════ */
+        .text-input-container {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            display: none;
+        }
+
+        .text-input-container.visible {
+            display: flex;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--gray-900);
+            border: 1px solid var(--gray-800);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .text-input:focus {
+            border-color: var(--gray-600);
+        }
+
+        .text-input::placeholder {
+            color: var(--gray-600);
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: var(--white);
+            border: none;
+            color: var(--black);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--gray-200);
+        }
+
+        /* ═══════════════════════════════════════════
+           CLICK RIPPLE EFFECT
+        ═══════════════════════════════════════════ */
+        .ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            pointer-events: none;
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out forwards;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           FULLSCREEN TRANSITION
+        ═══════════════════════════════════════════ */
+        .fullscreen-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 9998;
+        }
+
+        .fullscreen-flash.active {
+            animation: flashEffect 0.3s ease-out;
+        }
+
+        @keyframes flashEffect {
+            0% { opacity: 0; }
+            50% { opacity: 0.1; }
+            100% { opacity: 0; }
+        }
+
+        /* ═══════════════════════════════════════════
+           THINKING ANIMATION
+        ═══════════════════════════════════════════ */
+        .thinking-dots {
+            display: none;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .thinking-dots.visible {
+            display: flex;
+        }
+
+        .thinking-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--gray-500);
+            border-radius: 50%;
+            animation: thinkingPulse 1.4s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes thinkingPulse {
+            0%, 80%, 100% { transform: scale(1); opacity: 0.5; }
+            40% { transform: scale(1.3); opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .intro-logo {
+                font-size: 48px;
+                letter-spacing: 10px;
+            }
+
+            .voice-orb-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .voice-orb {
+                width: 140px;
+                height: 140px;
+            }
+
+            .orb-ring-1 {
+                width: 180px;
+                height: 180px;
+            }
+
+            .orb-ring-2 {
+                width: 210px;
+                height: 210px;
+            }
+
+            .response {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-logo">FRIDAY</div>
+        <div class="intro-line"></div>
+        <div class="intro-subtitle">VOICE ASSISTANT</div>
+    </div>
+
+    <!-- Fullscreen Flash Effect -->
+    <div class="fullscreen-flash" id="flash"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Status Header -->
+        <div class="status-header">
+            <div class="status-dot" id="statusDot"></div>
+            <span class="status-text" id="statusText">CONNECTING</span>
+        </div>
+
+        <!-- Voice Orb -->
+        <div class="voice-orb-container">
+            <div class="voice-orb" id="voiceOrb" onclick="toggleVoice()">
+                <!-- Mic Icon -->
+                <svg class="mic-icon" id="micIcon" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+
+                <!-- Waveform -->
+                <div class="waveform-container">
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="orb-ring orb-ring-1"></div>
+            <div class="orb-ring orb-ring-2"></div>
+        </div>
+
+        <!-- Text Display -->
+        <div class="text-display">
+            <div class="transcript" id="transcript"></div>
+            <div class="thinking-dots" id="thinkingDots">
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+                <div class="thinking-dot"></div>
+            </div>
+            <div class="response" id="response"></div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="bottom-controls">
+            <button class="control-btn" onclick="toggleTextInput()" title="Text eingeben">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                </svg>
+            </button>
+            <button class="control-btn" onclick="clearHistory()" title="Verlauf löschen">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Text Input (Hidden by default) -->
+        <div class="text-input-container" id="textInputContainer">
+            <input type="text" class="text-input" id="textInput" placeholder="Nachricht eingeben..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendTextMessage()">SENDEN</button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // CONFIGURATION
+        // ═══════════════════════════════════════════════════════════════
+        
+        const FRIDAY_SERVER = 'https://server-production-7ba8.up.railway.app';
+        
+        // ═══════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════
+        
+        let isConnected = false;
+        let isListening = false;
+        let isSpeaking = false;
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
+        
+        // ═══════════════════════════════════════════════════════════════
+        // ELEMENTS
+        // ═══════════════════════════════════════════════════════════════
+        
+        const elements = {
+            introScreen: document.getElementById('introScreen'),
+            flash: document.getElementById('flash'),
+            statusDot: document.getElementById('statusDot'),
+            statusText: document.getElementById('statusText'),
+            voiceOrb: document.getElementById('voiceOrb'),
+            micIcon: document.getElementById('micIcon'),
+            transcript: document.getElementById('transcript'),
+            thinkingDots: document.getElementById('thinkingDots'),
+            response: document.getElementById('response'),
+            textInputContainer: document.getElementById('textInputContainer'),
+            textInput: document.getElementById('textInput')
+        };
+
+        // ═══════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+        
+        async function init() {
+            // Remove intro after animation
+            setTimeout(() => {
+                elements.introScreen.style.display = 'none';
+            }, 3500);
+
+            // Check connection
+            await checkConnection();
+            
+            // Setup speech recognition
+            setupSpeechRecognition();
+
+            // Add click ripple effect to body
+            document.body.addEventListener('click', createRipple);
+        }
+
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${FRIDAY_SERVER}/health`);
+                if (response.ok) {
+                    setStatus('online', 'ONLINE');
+                    isConnected = true;
+                } else {
+                    throw new Error('Server not responding');
+                }
+            } catch (error) {
+                console.error('Connection error:', error);
+                setStatus('offline', 'OFFLINE');
+                isConnected = false;
+                setTimeout(checkConnection, 5000);
+            }
+        }
+
+        function setStatus(status, text) {
+            elements.statusDot.className = 'status-dot ' + status;
+            elements.statusText.textContent = text;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // RIPPLE EFFECT
+        // ═══════════════════════════════════════════════════════════════
+        
+        function createRipple(e) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = e.clientX + 'px';
+            ripple.style.top = e.clientY + 'px';
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            ripple.style.marginLeft = '-50px';
+            ripple.style.marginTop = '-50px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        function triggerFlash() {
+            elements.flash.classList.add('active');
+            setTimeout(() => elements.flash.classList.remove('active'), 300);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SPEECH RECOGNITION
+        // ═══════════════════════════════════════════════════════════════
+        
+        function setupSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.log('Speech recognition not supported');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'de-DE';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                isListening = true;
+                elements.voiceOrb.classList.add('listening');
+                elements.micIcon.style.display = 'none';
+                setStatus('listening', 'LISTENING');
+                elements.transcript.textContent = '';
+                elements.transcript.classList.add('visible');
+                elements.response.classList.remove('visible');
+                triggerFlash();
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
+                
+                elements.transcript.textContent = `"${transcript}"`;
+
+                if (event.results[0].isFinal) {
+                    stopListening();
+                    if (transcript.trim()) {
+                        processMessage(transcript);
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                if (isListening) {
+                    stopListening();
+                }
+            };
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                alert('Spracherkennung wird nicht unterstützt.');
+                return;
+            }
+
+            if (isSpeaking) {
+                synthesis.cancel();
+                isSpeaking = false;
+                elements.voiceOrb.classList.remove('speaking');
+            }
+
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            if (synthesis.speaking) {
+                synthesis.cancel();
+            }
+            
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Could not start recognition:', e);
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            elements.voiceOrb.classList.remove('listening');
+            elements.micIcon.style.display = 'block';
+            if (isConnected) setStatus('online', 'ONLINE');
+            
+            try {
+                recognition.stop();
+            } catch (e) {}
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TEXT-TO-SPEECH
+        // ═══════════════════════════════════════════════════════════════
+        
+        function speak(text) {
+            if (!synthesis) return;
+            
+            synthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'de-DE';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+            
+            // Find a good German voice
+            const voices = synthesis.getVoices();
+            const germanVoice = voices.find(v => v.lang.startsWith('de') && v.name.includes('Female')) ||
+                               voices.find(v => v.lang.startsWith('de'));
+            if (germanVoice) {
+                utterance.voice = germanVoice;
+            }
+            
+            utterance.onstart = () => {
+                isSpeaking = true;
+                elements.voiceOrb.classList.add('speaking');
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                elements.voiceOrb.classList.remove('speaking');
+            };
+            
+            synthesis.speak(utterance);
+        }
+
+        // Load voices
+        if (synthesis) {
+            synthesis.onvoiceschanged = () => synthesis.getVoices();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // MESSAGE PROCESSING
+        // ═══════════════════════════════════════════════════════════════
+        
+        async function processMessage(text) {
+            // Show thinking
+            elements.thinkingDots.classList.add('visible');
+            setStatus('online', 'THINKING');
+            
+            try {
+                const response = await fetch(`${FRIDAY_SERVER}/api/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, userId: 'friday-user' })
+                });
+                
+                const data = await response.json();
+                
+                elements.thinkingDots.classList.remove('visible');
+                setStatus('online', 'ONLINE');
+                
+                if (data.success && data.message) {
+                    showResponse(data.message);
+                    speak(data.message);
+                } else {
+                    showResponse(data.error || 'Es tut mir leid, ich konnte das nicht verarbeiten.');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                elements.thinkingDots.classList.remove('visible');
+                setStatus('online', 'ONLINE');
+                showResponse('Verbindungsfehler. Bitte versuche es erneut.');
+            }
+        }
+
+        function showResponse(text) {
+            elements.response.textContent = text;
+            elements.response.classList.add('visible');
+            triggerFlash();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TEXT INPUT
+        // ═══════════════════════════════════════════════════════════════
+        
+        function toggleTextInput() {
+            elements.textInputContainer.classList.toggle('visible');
+            if (elements.textInputContainer.classList.contains('visible')) {
+                elements.textInput.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendTextMessage();
+            }
+        }
+
+        function sendTextMessage() {
+            const text = elements.textInput.value.trim();
+            if (!text) return;
+            
+            elements.textInput.value = '';
+            elements.transcript.textContent = `"${text}"`;
+            elements.transcript.classList.add('visible');
+            elements.response.classList.remove('visible');
+            
+            processMessage(text);
+        }
+
+        function clearHistory() {
+            elements.transcript.textContent = '';
+            elements.transcript.classList.remove('visible');
+            elements.response.textContent = '';
+            elements.response.classList.remove('visible');
+            triggerFlash();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════
+        
+        init();
+    </script>
+</body>
+</html>
